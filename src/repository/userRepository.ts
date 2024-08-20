@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-interface Login{
-    email: string;
-    password: string;
-}
+// interface Login{
+//     email: string;
+//     password: string;
+// }
 
 const userRepository = {
     findByEmail: async (email: string): Promise<IUser | null> => {
