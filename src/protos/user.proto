@@ -16,3 +16,7 @@ message RegisterResponse {
     bool registerStatus = 2;
     Token userData = 3;
 }
+
+message Token {
+    string token = 1;
+}

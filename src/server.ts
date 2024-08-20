@@ -2,9 +2,8 @@ import dotenv from "dotenv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import express, { Express } from "express";
+import { UserController }  from "./controllers/userController";
 
-const app: Express = express();
 dotenv.config();
 
 const packatgeDefinition = protoLoader.loadSync(
@@ -31,7 +30,11 @@ const grpcServer = () => {
     )
 }
 
-server.addService(userProto.UserService.service, {})
+
+server.addService(userProto.UserService.service, {
+    Register: UserController.signup,
+    OtpVerify: UserController.otp,
+})
 
 grpcServer()
 

@@ -1,12 +1,13 @@
 {
   "name": "dwl_user_service",
   "version": "1.0.0",
-  "main": "./lib/index.js",
+  "main": "./lib/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "start": "nodemon --exec ts-node src/server.ts"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "express": "^4.19.2",
     "mongoose": "^8.5.3",
     "nodemailer": "^6.9.14",
+    "nodemon": "^3.1.4",
     "tslint": "^6.1.3"
   },
   "devDependencies": {
