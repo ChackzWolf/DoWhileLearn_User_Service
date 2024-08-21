@@ -3,6 +3,9 @@ import nodemailer from "nodemailer"
 
 export const SendVerificationMail = async (email: string, otp: string): Promise<void> => {
     try {
+
+        console.log(process.env.PASSWORD , 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+        console.log(process.env.EMAIL, 'kkkkkkkkkkkkkkkkkkkkkkkkkkk')
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -13,10 +16,10 @@ export const SendVerificationMail = async (email: string, otp: string): Promise<
         console.log('mail');
 
         const mailOptions = {
-            from: 'Climbr <DoWhileLearn@gmail.com>',
+            from: 'DoWhileLearn <dowhilelearn@gmail.com>',
             to: email,
             subject: 'E-Mail Verification',
-            html: `<p>Please enter the code:${otp}  to verify your email.</p>`
+            html: `<p>Please enter the code:${otp}  to verify your email address.</p>`
         };
 
         await transporter.sendMail(mailOptions);

@@ -4,8 +4,8 @@ interface UserData {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
-}
+    password: string; 
+} 
 
 export const UserController = {
     signup: async (call: any, callback: any) => {
@@ -13,8 +13,9 @@ export const UserController = {
             console.log(`UserController ${call}`)
             const userData : UserData = call.request;
             const response = await UserService.userRegister(userData);
+            console.log(response, 'from user controller')
             if(response.success) {
-                callback( null , { success: true, msg: "OTP sent", otp: response.otp, data: response.user_data});
+                callback( null , { success: true, msg: "OTP sent", otp: response.otp, data: response.tempId});
             }else{
                 callback(null, {success: false, msg: "Email already exists."})
             }

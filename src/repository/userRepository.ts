@@ -1,4 +1,4 @@
-import UserModel, {IUser} from "../models/userModel";
+import UserModel, {IUser,ITempUser,TempUser} from "../models/userModel";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -9,6 +9,14 @@ dotenv.config();
 //     password: string;
 // }
 
+
+interface iTempuser{
+    _id:string,
+    userData:Object,
+    otp:string,
+    createdAt:Date
+}
+
 const userRepository = {
     findByEmail: async (email: string): Promise<IUser | null> => {
         try {
@@ -16,6 +24,23 @@ const userRepository = {
             return user;
         } catch (err) {
             console.error(`Error finding user by email: ${err}`);
+            return null;
+        }
+    },
+    
+    createTempUser: async (tempUserData: Partial<ITempUser>): Promise<ITempUser | null> => {
+        try {
+            const { userData, otp, createdAt } = tempUserData;
+            
+            const createdTempData = new TempUser({
+                userData,
+                otp,
+                createdAt: createdAt || new Date()
+            });
+            const savedUser = await createdTempData.save();
+            return savedUser;
+        } catch (err) {
+            console.error("Error creating temporary user data", err);
             return null;
         }
     },
