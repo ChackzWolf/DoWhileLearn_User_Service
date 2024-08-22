@@ -21,22 +21,13 @@ export const UserController = {
     verifyOtp: async (call: any, callback: any) =>{
         try{
             console.log(`UserController ${call}`);
-            const data = call.request
+            const data = call.request;
             const response = await UserService.VerifyOtp(data);
             console.log(response, 'userController')
-            callback(null, "hello world");
+            callback(null, response);
         }catch(err){
             console.error(err)
         }
     }
-    // otp: async( call: any, callback: any) => {
-    //     try {
-    //         const body = call.request;
-    //         const {otp, userData, enteredOTP} = body;
-    //         const otpResponse = await UserService.verifyOtp(enteredOTP, otp, userData);
-    //         callback(null, otpResponse)
-    //     }catch(err){
-    //         callback(err);
-    //     }
-    // }
+
 }

@@ -36,4 +36,6 @@ message OTPRequest {
 
 message OTPResponse {
     string msg = 1;
+    string token = 2;
+    bool success = 3;
 }

@@ -16,6 +16,7 @@ const userRepository = {
     findByEmail: async (email: string): Promise<IUser | null> => {
         try {
             const user = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
+            console.log(user, 'email in userRepository')
             return user;
         } catch (err) {
             console.error(`Error finding user by email: ${err}`);

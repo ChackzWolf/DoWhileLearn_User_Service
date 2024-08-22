@@ -3,6 +3,7 @@ import  {IUser, ITempUser, TempUser} from "../models/userModel";
 import dotenv from "dotenv"
 import { generateOTP } from "../utils/generateOTP";
 import { SendVerificationMail } from "../utils/sendEmail";
+import createToken from "../configs/jwtConfig";
 dotenv.config();
 
 interface User{
@@ -23,11 +24,12 @@ export const UserService = {
                 throw new Error("Email is undefined");
             } 
             const emailExists = await userRepository.findByEmail(email);
-
+            
             if(emailExists){
+                console.log('email exists triggered')
                 return {success: false, message: "Email already exists" };
             }
-            
+
             let otp = generateOTP();
             console.log(`OTP : [ ${otp} ]`);
 
@@ -59,14 +61,14 @@ export const UserService = {
             const tempUser: ITempUser | null  = await TempUser.findById(pass.tempId);
             if(tempUser){
                 if(tempUser.otp === pass.enteredOTP){
-                    const createUser = userRepository.createUser(tempUser.userData);
+                    const createUser = await userRepository.createUser(tempUser.userData);
 
                     console.log('created user', createUser)
                     if(!createUser){
                         throw new Error('Failed to create User');
                     }else{
-                        // const token = createToken(createUser);
-                        return {sucess: true, message: "User has been registered."}
+                        const token  = createToken(createUser);
+                        return {success: true, message: "User has been registered.",token}
 
                     }
                 }
