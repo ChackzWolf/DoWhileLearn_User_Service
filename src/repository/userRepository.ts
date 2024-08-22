@@ -10,12 +10,7 @@ dotenv.config();
 // }
 
 
-interface iTempuser{
-    _id:string,
-    userData:Object,
-    otp:string,
-    createdAt:Date
-}
+
 
 const userRepository = {
     findByEmail: async (email: string): Promise<IUser | null> => {
@@ -62,6 +57,7 @@ const userRepository = {
             return null;
         }
     }
+
 };
 
 export default userRepository

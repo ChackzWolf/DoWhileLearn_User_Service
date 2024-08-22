@@ -1,21 +1,16 @@
 import { UserService } from "../services/userService";
 
-interface UserData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string; 
-} 
+
 
 export const UserController = {
     signup: async (call: any, callback: any) => {
         try {
             console.log(`UserController ${call}`)
-            const userData : UserData = call.request;
-            const response = await UserService.userRegister(userData);
+            const userData = call.request;
+            const response = await UserService.userRegister( userData);
             console.log(response, 'from user controller')
             if(response.success) {
-                callback( null , { success: true, msg: "OTP sent", otp: response.otp, data: response.tempId});
+                callback( null , { success: true, msg: "OTP sent", tempId: response.tempId, email: response.email});
             }else{
                 callback(null, {success: false, msg: "Email already exists."})
             }
@@ -23,14 +18,25 @@ export const UserController = {
             callback(err)
         }
     },
-    otp: async( call: any, callback: any) => {
-        try {
-            const body = call.request;
-            const {otp, userData, enteredOTP} = body;
-            const otpResponse = await UserService.verifyOtp(enteredOTP, otp, userData);
-            callback(null, otpResponse)
+    verifyOtp: async (call: any, callback: any) =>{
+        try{
+            console.log(`UserController ${call}`);
+            const data = call.request
+            const response = await UserService.VerifyOtp(data);
+            console.log(response, 'userController')
+            callback(null, "hello world");
         }catch(err){
-            callback(err);
+            console.error(err)
         }
     }
+    // otp: async( call: any, callback: any) => {
+    //     try {
+    //         const body = call.request;
+    //         const {otp, userData, enteredOTP} = body;
+    //         const otpResponse = await UserService.verifyOtp(enteredOTP, otp, userData);
+    //         callback(null, otpResponse)
+    //     }catch(err){
+    //         callback(err);
+    //     }
+    // }
 }

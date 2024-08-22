@@ -36,7 +36,7 @@ const grpcServer = () => {
 
 server.addService(userProto.UserService.service, {
     Register: UserController.signup,
-    OtpVerify: UserController.otp,
+    VerifyOTP: UserController.verifyOtp,
 })
 
 grpcServer()

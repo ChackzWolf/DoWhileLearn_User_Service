@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema,Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
 
@@ -10,9 +10,10 @@ export interface IUser extends Document {
 }
 
 export interface ITempUser extends Document {
-    userData:IUser;
-    otp:string;
+    userData: IUser;
+    otp: string;
     createdAt: Date;
+    _id: Types.ObjectId; // This is the correct type for MongoDB _id
 }
 
 const UserSchema: Schema <IUser> = new Schema({
