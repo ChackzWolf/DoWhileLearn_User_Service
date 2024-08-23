@@ -3,6 +3,7 @@ syntax = "proto3";
 service UserService {
     rpc Register (RegisterRequest) returns (RegisterResponse) {};
     rpc VerifyOTP (OTPRequest) returns (OTPResponse);
+    rpc ResendOTP (OTPRequest) returns (OTPResponse);
 } 
 
 message RegisterRequest{

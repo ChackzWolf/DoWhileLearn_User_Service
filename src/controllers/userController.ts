@@ -1,14 +1,15 @@
 import { UserService } from "../services/userService";
 
 
+const userService = new UserService()
 
-export const UserController = {
-    signup: async (call: any, callback: any) => {
+
+export class UserController {
+
+    async signup(call: any, callback: any) {
         try {
-            console.log(`UserController ${call}`)
             const userData = call.request;
-            const response = await UserService.userRegister( userData);
-            console.log(response, 'from user controller')
+            const response = await userService.userRegister( userData);
             if(response.success) {
                 callback( null , { success: true, msg: "OTP sent", tempId: response.tempId, email: response.email});
             }else{
@@ -17,17 +18,25 @@ export const UserController = {
         } catch (err) {
             callback(err)
         }
-    },
-    verifyOtp: async (call: any, callback: any) =>{
+    }
+    async verifyOtp(call: any, callback: any) {
         try{
             console.log(`UserController ${call}`);
             const data = call.request;
-            const response = await UserService.VerifyOtp(data);
+            const response = await userService.VerifyOtp(data);
             console.log(response, 'userController')
             callback(null, response);
         }catch(err){
             console.error(err)
         }
     }
-
+    async resendOtp(call:any, callback:any) {
+        try{
+        const data = call.request;
+        const response = await userService.ResendOTP(data);
+        callback(null,response);
+        }catch(err){
+            callback(err)
+        }
+    }
 }

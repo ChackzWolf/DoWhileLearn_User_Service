@@ -3,27 +3,37 @@ import  {IUser, ITempUser, TempUser} from "../models/userModel";
 import dotenv from "dotenv"
 import { generateOTP } from "../utils/generateOTP";
 import { SendVerificationMail } from "../utils/sendEmail";
-import createToken from "../configs/jwtConfig";
+import createToken from "../utils/activationToken";
 dotenv.config();
 
 interface User{
-    _id:string,
     firstName:string;
     lastName: string; 
     email: string;
     password: string;
 }
+
+interface VerifyOtpData{
+    enteredOTP:string;
+    email:string;
+    tempId:string
+}
+
+const repository = new userRepository()
+
+interface promiseReturn { success: boolean, message: string, tempId?: string, email?: string }
  
 
-export const UserService = {
-    userRegister: async(userData: User): Promise <{ success: boolean, message: string, tempId?: string, email?: string }> => {
+export class UserService {
+    
+    async userRegister(userData: User): Promise <promiseReturn> {
         try{
             console.log(`userService ${userData}`)
             const email = userData.email;
             if(email === undefined){
                 throw new Error("Email is undefined");
             } 
-            const emailExists = await userRepository.findByEmail(email);
+            const emailExists = await repository.findByEmail(email);
             
             if(emailExists){
                 console.log('email exists triggered')
@@ -38,7 +48,7 @@ export const UserService = {
             console.log('Email send')
 
 
-            const tempUserData: ITempUser | null = await userRepository.createTempUser({
+            const tempUserData: ITempUser | null = await repository.createTempUser({
                 otp,
                 userData: userData as IUser,
             });
@@ -54,55 +64,55 @@ export const UserService = {
         }catch(err){
             throw new Error(`Failed to signup: ${err}`);
         } 
-    },
+    }
 
-    VerifyOtp: async (pass:any) =>{
-        try{
-            const tempUser: ITempUser | null  = await TempUser.findById(pass.tempId);
-            if(tempUser){
-                if(tempUser.otp === pass.enteredOTP){
-                    const createUser = await userRepository.createUser(tempUser.userData);
-
-                    console.log('created user', createUser)
-                    if(!createUser){
-                        throw new Error('Failed to create User');
-                    }else{
-                        const token  = createToken(createUser);
-                        return {success: true, message: "User has been registered.",token}
-
-                    }
-                }
-            }  
-
-            console.log(tempUser, 'userService')   
-
-            return pass;
-        }catch(err){ 
-            console.error(err)  
+    async VerifyOtp(passedData: VerifyOtpData): Promise<{success:boolean, message:string, token?:string}>{
+        try {
+            const tempUser: ITempUser | null = await TempUser.findById(passedData.tempId);
+            
+            if (!tempUser) {
+                return { success: false, message: "Temp user not found." };
+            }
+    
+            if (tempUser.otp !== passedData.enteredOTP) {
+                return { success: false, message: "Invalid OTP." };
+            }
+    
+            const createUser: IUser | null = await repository.createUser(tempUser.userData);
+    
+            if (!createUser) {
+                throw new Error("Failed to create user.");
+            }
+    
+            const token = createToken(createUser);
+            return { success: true, message: "User has been registered.", token };
+    
+        } catch (err) {
+            console.error("Error in VerifyOtp:", err);
+            return { success: false, message: "An error occurred while verifying OTP." };
         }
     }
-    // verifyOtp: async ( enteredOTP: string, otp: string, userData: User) : Promise<{ success: boolean, message: string, userData?: User }> => {
-    //     try {
-    //         if (otp === enteredOTP) {
-    //             const createdUser = await userRepository.createUser(userData);
-                
-    //             if (createdUser) {
-    //                 return {
-    //                     success: true,
-    //                     message: "Correct OTP",
-    //                     userData: createdUser 
-    //                 };
-    //             } else { 
-    //                 return {
-    //                     success: false,
-    //                     message: "User creation failed. User data is null."
-    //                 };
-    //             }
-    //         } else {
-    //             return { success: false, message: 'Invalid OTP.' };
-    //         }
-    //     } catch (err) {
-    //         throw new Error(`Failed to verify OTP: ${err}`);
-    //     }
-    // }
+
+
+
+    async ResendOTP(passedData : VerifyOtpData):Promise<{success: boolean, msg:string}> {
+        try{
+            const {email,tempId} = passedData;
+            let newOTP = generateOTP();
+            console.log(`OTP : [   ${newOTP}   ]`);
+
+            const updatedTempUser = await TempUser.findByIdAndUpdate(tempId,{otp:newOTP},{new:true})
+
+            if(!updatedTempUser){
+                console.log('failed to send otp')
+                return { success: false, msg: "Register time has expaired. Try registering again"}
+            }else{
+                await SendVerificationMail(email,newOTP)
+
+                return {success: true, msg:"OTP has been resent"};
+            } 
+        }catch{
+            return {success: false, msg: "An error occured while Resending OTP"}
+        }
+    }
 }

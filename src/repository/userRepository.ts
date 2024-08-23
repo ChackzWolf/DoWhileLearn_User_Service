@@ -4,16 +4,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-// interface Login{
-//     email: string;
-//     password: string;
-// }
 
-
-
-
-const userRepository = {
-    findByEmail: async (email: string): Promise<IUser | null> => {
+class userRepository {
+    
+    async findByEmail (email: string): Promise<IUser | null>{
         try {
             const user = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
             console.log(user, 'email in userRepository')
@@ -22,9 +16,9 @@ const userRepository = {
             console.error(`Error finding user by email: ${err}`);
             return null;
         }
-    },
+    }
     
-    createTempUser: async (tempUserData: Partial<ITempUser>): Promise<ITempUser | null> => {
+    async createTempUser(tempUserData: Partial<ITempUser>): Promise<ITempUser | null>{
         try {
             const { userData, otp, createdAt } = tempUserData;
             
@@ -39,12 +33,12 @@ const userRepository = {
             console.error("Error creating temporary user data", err);
             return null;
         }
-    },
+    }
 
 
-    createUser: async (userData: Partial<IUser>): Promise<IUser | null> => {
+    async createUser(userData: Partial<IUser>): Promise<IUser | null>{
         try {
-            const { firstName, lastName, email, password } = userData;
+            const { firstName, lastName, email, password } = userData ;
             const createdUser = new UserModel({
                 firstName,
                 lastName,

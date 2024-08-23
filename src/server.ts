@@ -17,7 +17,7 @@ const packatgeDefinition = protoLoader.loadSync(
 const userProto = grpc.loadPackageDefinition(packatgeDefinition)as any;
 
 const server =  new grpc.Server()
-
+export const controller = new UserController()
 const grpcServer = () => {
     server.bindAsync(
         `0.0.0.0:${process.env.USER_GRPC_PORT}`,
@@ -35,8 +35,9 @@ const grpcServer = () => {
  
 
 server.addService(userProto.UserService.service, {
-    Register: UserController.signup,
-    VerifyOTP: UserController.verifyOtp,
+    Register: controller.signup,
+    VerifyOTP: controller.verifyOtp,
+    ResendOTP: controller.resendOtp,
 })
 
 grpcServer()

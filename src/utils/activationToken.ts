@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
+import jwt ,{ Secret }from "jsonwebtoken";
 import { IUser } from "../models/userModel";
 
 dotenv.config()
@@ -15,7 +15,7 @@ const createToken = (user:IUser) :string=>{
         {
             id : user._id,
             email: user.email,  
-        },JWT_SECRET
+        },JWT_SECRET as Secret,
     )
 
     return token
