@@ -1,4 +1,4 @@
-import { UserService } from "../services/userService";
+import { UserService } from "../services/UserService";
 
 
 const userService = new UserService()
@@ -19,22 +19,32 @@ export class UserController {
             callback(err)
         }
     }
+
     async verifyOtp(call: any, callback: any) {
         try{
-            console.log(`UserController ${call}`);
             const data = call.request;
             const response = await userService.VerifyOtp(data);
-            console.log(response, 'userController')
             callback(null, response);
         }catch(err){
             console.error(err)
         }
     }
+
     async resendOtp(call:any, callback:any) {
         try{
-        const data = call.request;
-        const response = await userService.ResendOTP(data);
-        callback(null,response);
+            const data = call.request;
+            const response = await userService.ResendOTP(data);
+            callback(null,response);
+        }catch(err){
+            callback(err) 
+        }
+    } 
+
+    async userLogin(call:any, callback:any){
+        try{
+            const data = call.request;
+            const response = await userService.userLogin(data);
+            callback(null, response);
         }catch(err){
             callback(err)
         }

@@ -1,12 +1,16 @@
 import mongoose, { Document, Schema,Types } from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 
 export interface IUser extends Document {
     firstName:string;
     lastName:string;
     email: string;
-    password: string
+    password: string;
+    comparePassword: (password: string) => Promise<boolean>;
+    SignAccessToken: () => string;
+    SignRefreshToken: () => string;
 }
 
 export interface ITempUser extends Document {
@@ -49,18 +53,52 @@ const TempUserShcema: Schema <ITempUser> = new Schema({
         default: Date.now,
         expires: 900 // expires after 15 minutes
     }
+}
+,
+{
+    timestamps: true,
 })
 
-//pre-save password
+// Hash password
+UserSchema.pre<IUser>("save", async function (next) {
+    if (!this.isModified("password")) {
+      next();
+    }
+    this.password = await bcrypt.hash(this.password || "", 10);
+    next();
+});
 
-UserSchema.pre<IUser>('save', async function(next) {
-    if(!this.isModified("password")) {
-        return next();
-    } 
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next()
-})
+// sign access token
+UserSchema.methods.SignAccessToken = function () {
+    return jwt.sign(
+      { id: this._id, role: this.role },
+      process.env.ACCESS_TOKEN || "",
+      {
+        expiresIn: "5m",
+      }
+    );
+  };
+
+
+
+// sign refresh token
+UserSchema.methods.SignRefreshToken = function () {
+    return jwt.sign(
+      { id: this._id, role: this.role },
+      process.env.REFRESH_TOKEN || "",
+      {
+        expiresIn: "3d",
+      }
+    );
+};
+
+// compare password
+UserSchema.methods.comparePassword = async function (enteredPassword: string) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+
+
+
 export const TempUser = mongoose.model<ITempUser>("TempUserData",TempUserShcema)
 const UserModel = mongoose.model<IUser>("User", UserSchema);
 

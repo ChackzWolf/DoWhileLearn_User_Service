@@ -4,6 +4,7 @@ service UserService {
     rpc Register (RegisterRequest) returns (RegisterResponse) {};
     rpc VerifyOTP (OTPRequest) returns (OTPResponse);
     rpc ResendOTP (OTPRequest) returns (OTPResponse);
+    rpc UserLogin (LoginRequest) returns (LoginResponse);
 } 
 
 message RegisterRequest{
@@ -39,4 +40,15 @@ message OTPResponse {
     string msg = 1;
     string token = 2;
     bool success = 3;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    bool success = 1;
+    string token = 2;
+    string msg = 3;
 }

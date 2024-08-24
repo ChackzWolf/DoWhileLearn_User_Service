@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import { generateOTP } from "../utils/generateOTP";
 import { SendVerificationMail } from "../utils/sendEmail";
 import createToken from "../utils/activationToken";
+import { IUserService } from "../interfaces/IUserService";
 dotenv.config();
 
 interface User{
@@ -19,12 +20,14 @@ interface VerifyOtpData{
     tempId:string
 }
 
+
+
 const repository = new userRepository()
 
 interface promiseReturn { success: boolean, message: string, tempId?: string, email?: string }
  
 
-export class UserService {
+export class UserService implements IUserService{
     
     async userRegister(userData: User): Promise <promiseReturn> {
         try{
@@ -46,14 +49,14 @@ export class UserService {
             await SendVerificationMail(email,otp)
   
             console.log('Email send')
-
+            console.log(userData)
 
             const tempUserData: ITempUser | null = await repository.createTempUser({
                 otp,
-                userData: userData as IUser,
-            });
+                userData: userData as IUser, 
+            });    
 
-            if (tempUserData) { 
+            if (tempUserData) {  
                 const tempId = tempUserData._id.toString(); // Convert ObjectId to string if needed
                 return { success: true, message: "Verification email sent", tempId, email};
             } else {
@@ -86,7 +89,7 @@ export class UserService {
     
             const token = createToken(createUser);
 
-            
+
             return { success: true, message: "User has been registered.", token };
     
         } catch (err) {
@@ -117,4 +120,26 @@ export class UserService {
             return {success: false, msg: "An error occured while Resending OTP"}
         }
     }
+    
+    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; msg: string; token?: string; }> {
+        try {
+            const {email, password} = loginData;
+            const userData = await repository.findByEmail(email);
+            if(userData){
+                const checkPassword = await userData.comparePassword(password)
+                if(checkPassword){
+                    const token = createToken(userData);
+                    return {success:true, msg: "User login successful.", token:token}
+                }else {
+                    return { success: false, msg: "Invalid password."}
+                }
+            }else{
+                return {success: false , msg: "Invalid email."}
+            }
+            
+        } catch (error) {
+            return { success:false, msg: "An error occured while loggin in."};
+        }
+    }
+    
 }
