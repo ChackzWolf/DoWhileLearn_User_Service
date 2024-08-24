@@ -85,6 +85,8 @@ export class UserService {
             }
     
             const token = createToken(createUser);
+
+            
             return { success: true, message: "User has been registered.", token };
     
         } catch (err) {
