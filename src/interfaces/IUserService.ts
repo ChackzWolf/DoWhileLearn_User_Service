@@ -1,3 +1,4 @@
+import { IUser } from "../models/userModel";
 
 export interface IUserService {
     userRegister(userData: {
@@ -17,8 +18,8 @@ export interface IUserService {
         password: string;
     }): Promise<{
         success: boolean;
-        msg: string;
-        token?: string;
+        message: string;
+        userData?: IUser;
     }>;
 
     VerifyOtp(passedData: {
@@ -28,7 +29,7 @@ export interface IUserService {
     }): Promise<{
         success: boolean;
         message: string;
-        token?: string;
+        userData?: IUser
     }>;
 
     ResendOTP(passedData: {
@@ -36,6 +37,6 @@ export interface IUserService {
         tempId: string;
     }): Promise<{
         success: boolean;
-        msg: string;
+        message: string;
     }>;
 }

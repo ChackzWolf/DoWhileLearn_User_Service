@@ -3,7 +3,6 @@ import  {IUser, ITempUser, TempUser} from "../models/userModel";
 import dotenv from "dotenv"
 import { generateOTP } from "../utils/generateOTP";
 import { SendVerificationMail } from "../utils/sendEmail";
-import createToken from "../utils/activationToken";
 import { IUserService } from "../interfaces/IUserService";
 dotenv.config();
 
@@ -45,11 +44,9 @@ export class UserService implements IUserService{
 
             let otp = generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-
             await SendVerificationMail(email,otp)
-  
+
             console.log('Email send')
-            console.log(userData)
 
             const tempUserData: ITempUser | null = await repository.createTempUser({
                 otp,
@@ -69,28 +66,26 @@ export class UserService implements IUserService{
         } 
     }
 
-    async VerifyOtp(passedData: VerifyOtpData): Promise<{success:boolean, message:string, token?:string}>{
+    async VerifyOtp(passedData: VerifyOtpData): Promise<{success:boolean, message:string , userData?: IUser}>{
         try {
-            const tempUser: ITempUser | null = await TempUser.findById(passedData.tempId);
+            const {tempId, enteredOTP} = passedData;
+            const tempUser: ITempUser | null = await TempUser.findById(tempId);
             
             if (!tempUser) {
-                return { success: false, message: "Temp user not found." };
+                return { success: false, message: "Temp user not found. { Internal error }" };
             }
     
-            if (tempUser.otp !== passedData.enteredOTP) {
-                return { success: false, message: "Invalid OTP." };
+            if (tempUser.otp !== enteredOTP) {
+                return { success: false, message: "You have entered invalid OTP." };
             }
     
-            const createUser: IUser | null = await repository.createUser(tempUser.userData);
+            const createdUser: IUser | null = await repository.createUser(tempUser.userData);
     
-            if (!createUser) {
+            if (!createdUser) {
                 throw new Error("Failed to create user.");
             }
     
-            const token = createToken(createUser);
-
-
-            return { success: true, message: "User has been registered.", token };
+            return { success: true, message: "User has been registered successfuly.", userData: createdUser};
     
         } catch (err) {
             console.error("Error in VerifyOtp:", err);
@@ -99,8 +94,7 @@ export class UserService implements IUserService{
     }
 
 
-
-    async ResendOTP(passedData : VerifyOtpData):Promise<{success: boolean, msg:string}> {
+    async ResendOTP(passedData : VerifyOtpData):Promise<{success: boolean, message:string}> {
         try{
             const {email,tempId} = passedData;
             let newOTP = generateOTP();
@@ -110,36 +104,35 @@ export class UserService implements IUserService{
 
             if(!updatedTempUser){
                 console.log('failed to send otp')
-                return { success: false, msg: "Register time has expaired. Try registering again"}
+                return { success: false, message: "Register time has expaired. Try registering again"}
             }else{
                 await SendVerificationMail(email,newOTP)
 
-                return {success: true, msg:"OTP has been resent"};
+                return {success: true, message:"OTP has been resent"};
             } 
         }catch{
-            return {success: false, msg: "An error occured while Resending OTP"}
+            return {success: false, message: "An error occured while Resending OTP"}
         }
     }
     
-    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; msg: string; token?: string; }> {
+    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser }> {
         try {
             const {email, password} = loginData;
             const userData = await repository.findByEmail(email);
             if(userData){
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
-                    const token = createToken(userData);
-                    return {success:true, msg: "User login successful.", token:token}
+                    return {success:true, message: "User login successful.", userData}
                 }else {
-                    return { success: false, msg: "Invalid password."}
+                    return { success: false, message: "Invalid password."}
                 }
             }else{
-                return {success: false , msg: "Invalid email."}
+                return {success: false , message: "This Email is not registered."}
             }
             
         } catch (error) {
-            return { success:false, msg: "An error occured while loggin in."};
+            return { success:false, message: "An error occured while loggin in."};
         }
     }
     
-}
+} 

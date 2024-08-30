@@ -1,4 +1,4 @@
-import { UserService } from "../services/UserService";
+import { UserService } from "../UseCase/Use.case";
 
 
 const userService = new UserService()
@@ -39,7 +39,7 @@ export class UserController {
             callback(err) 
         }
     } 
-
+ 
     async userLogin(call:any, callback:any){
         try{
             const data = call.request;

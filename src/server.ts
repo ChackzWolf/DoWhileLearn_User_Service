@@ -4,13 +4,52 @@ import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { UserController }  from "./controllers/userController";
 import { connectDB } from "./configs/mongoDB";
+import morgan from 'morgan';
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import fs from 'fs'
+import express from "express"
+const app = express();
+
+
+
+
+
+// error log
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+    ),
+    transports: [
+      new winston.transports.Console(), // Log to the console
+      new DailyRotateFile({
+        filename: 'logs/application-%DATE%.log',
+        datePattern: 'YYYY-MM-DD',
+        maxFiles: '14d' // Keep logs for 14 days
+      })
+    ],
+  });
+  app.use(morgan('combined', {
+    stream: {
+      write: (message) => logger.info(message.trim())
+    }
+  }));
+// error log end
+
+
+
+const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+app.use(morgan('combined', { stream: logStream }));
+
 
 connectDB()
 
 dotenv.config();
 
 const packatgeDefinition = protoLoader.loadSync(
-    path.join(__dirname, "/protos/user.proto"),
+    path.join(__dirname, "/protos/user.proto"), 
     {keepCase: true, longs: String, enums: String, defaults: true, oneofs: true}
 )
 

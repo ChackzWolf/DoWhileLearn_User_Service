@@ -11,7 +11,7 @@ export interface IUser extends Document {
     comparePassword: (password: string) => Promise<boolean>;
     SignAccessToken: () => string;
     SignRefreshToken: () => string;
-}
+} 
 
 export interface ITempUser extends Document {
     userData: IUser;
