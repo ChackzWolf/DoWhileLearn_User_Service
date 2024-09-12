@@ -18,8 +18,8 @@ export class UserController {
         } catch (err) {
             callback(err)
         }
-    }
-
+    } 
+ 
     async verifyOtp(call: any, callback: any) {
         try{
             const data = call.request;
