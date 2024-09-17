@@ -49,4 +49,16 @@ export class UserController {
             callback(err)
         }
     }
+
+    async fetchStudents(_call: any, callback: any) {
+        try{
+            const response = await userService.fetchStudents();
+            console.log(response, 'response from controller')
+            callback(null, response);
+        }catch(err){
+            callback(err);
+        }
+    } 
 }
+
+ 

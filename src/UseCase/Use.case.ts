@@ -113,7 +113,7 @@ export class UserService implements IUserService{
         }catch{
             return {success: false, message: "An error occured while Resending OTP"}
         }
-    }
+    } 
     
     async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser }> {
         try {
@@ -134,5 +134,16 @@ export class UserService implements IUserService{
             return { success:false, message: "An error occured while loggin in."};
         }
     }
+
+    async fetchStudents():Promise<{success: boolean, students?:any | undefined}>{
+        try{
+            const students = await repository.getAllUsers();
+            if(students){
+               return {success :true, students}
+            }
+        }catch(err){
+            return {success: false};
+        }
+    }
     
-} 
+}  

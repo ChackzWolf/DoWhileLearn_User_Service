@@ -53,6 +53,16 @@ class userRepository {
         }
     }
 
+    async getAllUsers() {
+        try{
+            const users = await UserModel.find();
+            return  users;
+        }catch(err){
+            console.error("error getting users: " , err);
+            return null
+        }
+    }
+
 };
 
 export default userRepository

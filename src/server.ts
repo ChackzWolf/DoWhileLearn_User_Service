@@ -77,7 +77,8 @@ server.addService(userProto.UserService.service, {
     Register: controller.signup,
     VerifyOTP: controller.verifyOtp,
     ResendOTP: controller.resendOtp,
-    UserLogin: controller.userLogin
+    UserLogin: controller.userLogin,
+    FetchStudentData: controller.fetchStudents
 })
 
 grpcServer()
