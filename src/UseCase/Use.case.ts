@@ -5,7 +5,6 @@ import { generateOTP } from "../utils/Generate.OTP";
 import { SendVerificationMail } from "../utils/Send.email";
 import { IUserService } from "../interfaces/IUse.Case";
 import createToken from "../utils/Activation.token";
-import mongoose from "mongoose";
 dotenv.config();
 
 interface User{
@@ -27,6 +26,7 @@ interface VerifyOtpResponse {
     userId?: string;
     accessToken?: string;
     refreshToken?: string;
+    _id?:string
 }
 
 
@@ -93,7 +93,8 @@ export class UserService implements IUserService{
             if (!createdUser) {
                 throw new Error("Failed to create user.");
             }
-            const userId:string = (createdUser._id as mongoose.Types.ObjectId).toString() 
+            const userId: string = createdUser._id.toString();
+
             const { accessToken, refreshToken } = createToken(createdUser);
     
             return { 
@@ -135,14 +136,17 @@ export class UserService implements IUserService{
         }
     } 
     
-    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser }> {
+    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser, accessToken?:string, refreshToken?:string  , _id?:string}> {
         try {
             const {email, password} = loginData;
             const userData = await repository.findByEmail(email);
             if(userData){
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
-                    return {success:true, message: "User login successful.", userData}
+                    const _id = userData._id;
+                    const {accessToken , refreshToken} = createToken(userData);
+
+                    return {success:true, message: "User login successful.", userData, accessToken, refreshToken, _id};
                 }else {
                     return { success: false, message: "Invalid password."}
                 }
@@ -154,6 +158,8 @@ export class UserService implements IUserService{
             return { success:false, message: "An error occured while loggin in."};
         }
     }
+
+
     async blockUnblock(data:{userId:string}): Promise<{success:boolean; message?:string}> {
         try{
             console.log(data.userId,'from use case')

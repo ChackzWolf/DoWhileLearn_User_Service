@@ -1,6 +1,8 @@
 import { UserService } from "../UseCase/Use.case";
 import * as grpc from '@grpc/grpc-js';
 import { IUserController } from "../interfaces/IUserController";
+import { BlockUnblockRequest,BlockUnblockResponse } from "../interfaces/IUserController";
+
 // interface BlockUnblockRequest {
 //     userId: string;
 // }
@@ -15,7 +17,7 @@ const userService = new UserService()
 
 export class UserController implements IUserController{
 
-    async signup(call: any, callback: any): Promise<void> {
+    async signup(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void> {
         try {
             const userData = call.request;
             const response = await userService.userRegister( userData);
@@ -25,44 +27,41 @@ export class UserController implements IUserController{
                 callback(null, {success: false, msg: "Email already exists."})
             }
         } catch (err) {
-            callback(err)
+            callback(err as grpc.ServiceError)
         }
     } 
  
-    async verifyOtp(call: any, callback: any) : Promise<void>{
+    async verifyOtp(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>) : Promise<void>{
         try{
             const data = call.request;
             const response = await userService.VerifyOtp(data);
             callback(null, response);
         }catch(err){
-            console.error(err)
+            console.error(err as grpc.ServiceError)
         }
     }
 
-    async resendOtp(call:any, callback:any): Promise<void> {
+    async resendOtp(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void> {
         try{
             const data = call.request;
             const response = await userService.ResendOTP(data);
             callback(null,response);
         }catch(err){
-            callback(err) 
+            callback(err as grpc.ServiceError) 
         }
     } 
  
-    async userLogin(call:any, callback:any): Promise<void>{
+    async userLogin(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void>{
         try{
             const data = call.request;
             const response = await userService.userLogin(data);
             callback(null, response);
         }catch(err){
-            callback(err)
+            callback(err as grpc.ServiceError)
         }
     }
 
-    async  blockUnblock(
-        call: any,
-        callback: any
-    ): Promise<void> {
+    async  blockUnblock(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void>{
         try {
             const userId = call.request; // Extract userId from request
             console.log(userId,'controller')
@@ -73,14 +72,14 @@ export class UserController implements IUserController{
         }
     }
 
-    async fetchStudents(_call: any, callback: any) {
+    async fetchStudents(_call: grpc.ServerUnaryCall<BlockUnblockRequest, BlockUnblockResponse>, callback: grpc.sendUnaryData<BlockUnblockResponse>): Promise<void>{
         try{
             console.log('triggerd')
             const response = await userService.fetchStudents();
             console.log(response, 'response from controller')
             callback(null, response);
         }catch(err){
-            callback(err);
+            callback(err as grpc.ServiceError);
         }
     } 
 }
