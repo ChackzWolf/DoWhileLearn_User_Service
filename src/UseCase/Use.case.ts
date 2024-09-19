@@ -1,9 +1,11 @@
-import userRepository from "../repository/userRepository";
-import  {IUser, ITempUser, TempUser} from "../models/userModel";
+import userRepository from "../repository/User.repository";
+import  {IUser, ITempUser, TempUser} from "../models/User.model";
 import dotenv from "dotenv"
-import { generateOTP } from "../utils/generateOTP";
-import { SendVerificationMail } from "../utils/sendEmail";
-import { IUserService } from "../interfaces/IUserService";
+import { generateOTP } from "../utils/Generate.OTP";
+import { SendVerificationMail } from "../utils/Send.email";
+import { IUserService } from "../interfaces/IUse.Case";
+import createToken from "../utils/Activation.token";
+import mongoose from "mongoose";
 dotenv.config();
 
 interface User{
@@ -19,6 +21,13 @@ interface VerifyOtpData{
     tempId:string
 }
 
+interface VerifyOtpResponse {
+    success: boolean;
+    message: string;
+    userId?: string;
+    accessToken?: string;
+    refreshToken?: string;
+}
 
 
 const repository = new userRepository()
@@ -66,9 +75,9 @@ export class UserService implements IUserService{
         } 
     }
 
-    async VerifyOtp(passedData: VerifyOtpData): Promise<{success:boolean, message:string , userData?: IUser}>{
+    async VerifyOtp(passedData: VerifyOtpData): Promise<VerifyOtpResponse> {
         try {
-            const {tempId, enteredOTP} = passedData;
+            const { tempId, enteredOTP } = passedData;
             const tempUser: ITempUser | null = await TempUser.findById(tempId);
             
             if (!tempUser) {
@@ -78,18 +87,29 @@ export class UserService implements IUserService{
             if (tempUser.otp !== enteredOTP) {
                 return { success: false, message: "You have entered invalid OTP." };
             }
-    
+            
             const createdUser: IUser | null = await repository.createUser(tempUser.userData);
-    
+            
             if (!createdUser) {
                 throw new Error("Failed to create user.");
             }
+            const userId:string = (createdUser._id as mongoose.Types.ObjectId).toString() 
+            const { accessToken, refreshToken } = createToken(createdUser);
     
-            return { success: true, message: "User has been registered successfuly.", userData: createdUser};
+            return { 
+                success: true, 
+                message: "User has been registered successfully.", 
+                userId,// Ensure _id is properly typed
+                accessToken, 
+                refreshToken 
+            };
     
         } catch (err) {
             console.error("Error in VerifyOtp:", err);
-            return { success: false, message: "An error occurred while verifying OTP." };
+            return { 
+                success: false, 
+                message: "An error occurred while verifying OTP." 
+            };
         }
     }
 
@@ -134,16 +154,33 @@ export class UserService implements IUserService{
             return { success:false, message: "An error occured while loggin in."};
         }
     }
-
-    async fetchStudents():Promise<{success: boolean, students?:any | undefined}>{
+    async blockUnblock(data:{userId:string}): Promise<{success:boolean; message?:string}> {
         try{
-            const students = await repository.getAllUsers();
-            if(students){
-               return {success :true, students}
+            console.log(data.userId,'from use case')
+            const response = await repository.blockUnblock(data.userId);
+            if(!response.success){
+                return {success:false, message:"Error finding user."}
             }
-        }catch(err){
-            return {success: false};
+            return {success: true, message: response.message}
+
+        }catch(error){
+            return { success :false, message: "an error occured."}
         }
     }
+
+    async fetchStudents(): Promise<{ success: boolean; students?: IUser[] }> {
+        try {
+            const students = await repository.getAllUsers();
+            console.log(students, 'students')
+            if (students) {
+                return { success: true, students };
+            } else {
+                return { success: false };
+            }
+        } catch (err) {
+            return { success: false };
+        }
+    }
+    
     
 }  

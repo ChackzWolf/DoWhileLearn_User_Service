@@ -3,7 +3,7 @@ import "dotenv/config";
 
 const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URL_USER) {
+    if (!process.env.MONGODB_URL_USER) { 
       throw new Error("MONGO_URI is not defined in the environment variables");
     }
 

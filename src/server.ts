@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { UserController }  from "./controllers/userController";
+import { UserController }  from "./controllers/User.Controller";
 import { connectDB } from "./configs/mongoDB";
 import morgan from 'morgan';
 import winston from 'winston';
@@ -66,7 +66,7 @@ const grpcServer = () => {
                 console.log(err, "Error happened grpc user service.");
                 return;
             }else{
-                console.log("gRPC user server started on port", port);
+                console.log("USER_SERVICE running on port", port);
             }
         } 
     )
@@ -78,7 +78,8 @@ server.addService(userProto.UserService.service, {
     VerifyOTP: controller.verifyOtp,
     ResendOTP: controller.resendOtp,
     UserLogin: controller.userLogin,
-    FetchStudentData: controller.fetchStudents
+    FetchStudentData: controller.fetchStudents,
+    ToggleBlock: controller.blockUnblock
 })
 
 grpcServer()

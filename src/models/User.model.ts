@@ -3,16 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 
-export interface IUser extends Document {
-    firstName:string;
-    lastName:string;
-    email: string;
-    password: string;
-    comparePassword: (password: string) => Promise<boolean>;
-    SignAccessToken: () => string;
-    SignRefreshToken: () => string;
-} 
-
 export interface ITempUser extends Document {
     userData: IUser;
     otp: string;
@@ -20,7 +10,25 @@ export interface ITempUser extends Document {
     _id: Types.ObjectId; // This is the correct type for MongoDB _id
 }
 
-const UserSchema: Schema <IUser> = new Schema({
+export interface IUser extends Document {
+    firstName:string;
+    lastName:string;
+    email: string;
+    password: string;
+    isblocked: boolean;
+    purchasedCourses: mongoose.Types.ObjectId[]; // Array of ObjectId values
+    cart:mongoose.Types.ObjectId[]; // Array of ObjectId values
+    wishlist:mongoose.Types.ObjectId[]; // Array of ObjectId values
+    comparePassword: (password: string) => Promise<boolean>;
+    SignAccessToken: () => string;
+    SignRefreshToken: () => string;
+    block(): Promise<void>;
+    unblock(): Promise<void>;
+    toggleBlockStatus(): Promise<void>;
+} 
+
+// Create the schema
+const UserSchema: Schema<IUser> = new Schema({
     firstName: {
         type: String,
         required: true
@@ -31,13 +39,35 @@ const UserSchema: Schema <IUser> = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        lowercase: true
     },
     password: {
         type: String,
         required: true
-    }
-})
+    },
+    isblocked: {
+        type: Boolean,
+        default: false
+    },
+    purchasedCourses: [{
+        type: Schema.Types.ObjectId,
+        // No ref here since it's a different service
+    }],
+    cart:[{
+        type: Schema.Types.ObjectId,
+    }],
+    wishlist:[{
+        type: Schema.Types.ObjectId,
+    }]
+
+}, {
+    timestamps: true
+});
+
+
+
 
 const TempUserShcema: Schema <ITempUser> = new Schema({
     userData: {
@@ -59,6 +89,21 @@ const TempUserShcema: Schema <ITempUser> = new Schema({
     timestamps: true,
 })
 
+UserSchema.methods.toggleBlockStatus = async function (): Promise<void> {
+    this.isblocked = !this.isblocked; // Toggle the blocked status
+    await this.save(); // Save the updated document
+};
+
+UserSchema.methods.unblock = async function (): Promise<void> {
+    this.isblocked = false;
+    await this.save();
+};
+
+UserSchema.methods.block = async function (): Promise<void> {
+    this.isblocked = true;
+    await this.save();
+};
+
 // Hash password
 UserSchema.pre<IUser>("save", async function (next) {
     if (!this.isModified("password")) {
@@ -78,8 +123,6 @@ UserSchema.methods.SignAccessToken = function () {
       }
     );
   };
-
-
 
 // sign refresh token
 UserSchema.methods.SignRefreshToken = function () {

@@ -1,12 +1,21 @@
 import { UserService } from "../UseCase/Use.case";
+import * as grpc from '@grpc/grpc-js';
+import { IUserController } from "../interfaces/IUserController";
+// interface BlockUnblockRequest {
+//     userId: string;
+// }
+// interface BlockUnblockResponse {
+//     success: boolean;
+//     message?: string;
+// }
 
 
 const userService = new UserService()
 
 
-export class UserController {
+export class UserController implements IUserController{
 
-    async signup(call: any, callback: any) {
+    async signup(call: any, callback: any): Promise<void> {
         try {
             const userData = call.request;
             const response = await userService.userRegister( userData);
@@ -20,7 +29,7 @@ export class UserController {
         }
     } 
  
-    async verifyOtp(call: any, callback: any) {
+    async verifyOtp(call: any, callback: any) : Promise<void>{
         try{
             const data = call.request;
             const response = await userService.VerifyOtp(data);
@@ -30,7 +39,7 @@ export class UserController {
         }
     }
 
-    async resendOtp(call:any, callback:any) {
+    async resendOtp(call:any, callback:any): Promise<void> {
         try{
             const data = call.request;
             const response = await userService.ResendOTP(data);
@@ -40,7 +49,7 @@ export class UserController {
         }
     } 
  
-    async userLogin(call:any, callback:any){
+    async userLogin(call:any, callback:any): Promise<void>{
         try{
             const data = call.request;
             const response = await userService.userLogin(data);
@@ -50,8 +59,23 @@ export class UserController {
         }
     }
 
+    async  blockUnblock(
+        call: any,
+        callback: any
+    ): Promise<void> {
+        try {
+            const userId = call.request; // Extract userId from request
+            console.log(userId,'controller')
+            const response = await userService.blockUnblock(userId); // Call your service
+            callback(null, response); // Pass response to callback
+        } catch (error) {
+            callback(error as grpc.ServiceError); // Pass error to callback
+        }
+    }
+
     async fetchStudents(_call: any, callback: any) {
         try{
+            console.log('triggerd')
             const response = await userService.fetchStudents();
             console.log(response, 'response from controller')
             callback(null, response);
