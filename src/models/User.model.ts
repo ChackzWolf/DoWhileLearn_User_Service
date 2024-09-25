@@ -54,7 +54,6 @@ const UserSchema: Schema<IUser> = new Schema({
     },
     purchasedCourses: [{
         type: Schema.Types.ObjectId,
-        // No ref here since it's a different service
     }],
     cart:[{
         type: Schema.Types.ObjectId,
