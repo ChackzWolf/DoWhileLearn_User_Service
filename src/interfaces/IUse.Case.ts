@@ -6,7 +6,7 @@ export interface IUserService {
     lastName: string;
     email: string;
     password: string;
-  }): Promise<{
+  }): Promise<{ 
     success: boolean;
     message: string;
     tempId?: string;

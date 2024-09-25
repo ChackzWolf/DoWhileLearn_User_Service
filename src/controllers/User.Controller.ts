@@ -55,6 +55,7 @@ export class UserController implements IUserController{
         try{
             const data = call.request;
             const response = await userService.userLogin(data);
+            console.log(response, 'response from controller ')
             callback(null, response);
         }catch(err){
             callback(err as grpc.ServiceError)
@@ -82,6 +83,27 @@ export class UserController implements IUserController{
             callback(err as grpc.ServiceError);
         }
     } 
+
+    async addToCart(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void>{
+        try {
+            const data= call.request
+            const response = await userService.addToCart(data)
+            console.log(response,'response from controller');
+            callback(null,response)
+        } catch (err) {
+            callback(err as grpc.ServiceError);
+        }
+    }
+
+    async isInCart(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void>{
+        try {
+            const data = call.request;
+            const response = await userService.isInCart(data);
+            callback(null, response);
+        } catch (err) {
+            
+        }
+    }
 }
 
  

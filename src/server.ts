@@ -79,7 +79,9 @@ server.addService(userProto.UserService.service, {
     ResendOTP: controller.resendOtp,
     UserLogin: controller.userLogin,
     FetchStudentData: controller.fetchStudents,
-    ToggleBlock: controller.blockUnblock
+    ToggleBlock: controller.blockUnblock,
+    AddToCart: controller.addToCart,
+    IsInCart: controller.isInCart,
 })
 
 grpcServer()

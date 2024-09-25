@@ -8,9 +8,26 @@ service UserService {
     rpc UserLogin (LoginRequest) returns (LoginResponse);
     rpc FetchStudentData (EmptyRequest) returns (ResponseAllStudents);
     rpc ToggleBlock (ToggleBlockRequest) returns (ToggleBlockResponse);
+    rpc AddToCart (AddToCartRequest) returns (AddToCartResponse);
+    rpc IsInCart (AddToCartRequest) returns (IsInCartResponse);
 }
 
 message EmptyRequest {}
+
+message IsInCartResponse {
+    bool message = 1;
+    bool inCart = 2;
+}
+message AddToCartRequest {
+    string userId = 1;
+    string courseId = 2;
+}
+
+message AddToCartResponse {
+    string message = 1;
+    bool success = 2;
+    bool inCart = 3;
+}
 
 message ToggleBlockRequest {
     string userId = 1;
@@ -89,9 +106,9 @@ message LoginRequest {
 
 message LoginResponse {
     bool success = 1;
-    string token = 2;
+    string accessToken = 2;
     string refreshToken = 3;
-    string msg = 4;
+    string message = 4;
     int32 status = 5;
-    string _id = 6;
+    string userId = 6;
 }

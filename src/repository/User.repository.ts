@@ -8,6 +8,7 @@ dotenv.config();
 
 class userRepository implements IUserRepository {
     
+    
     async findByEmail (email: string): Promise<IUser | null>{
         try {
             const user = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
@@ -83,6 +84,46 @@ class userRepository implements IUserRepository {
             return null
         }
     }
+
+
+    async toggleCourseInCart(userId: string, courseId: string):Promise<{message?:string, success:boolean, inCart?: boolean}> {
+      try {
+        // First, check if the course is already in the cart
+        const user = await UserModel.findOne({ _id: userId, cart: { $in: [courseId] } });
+    
+        if (user) {
+          // If courseId is already in cart, remove it
+          await UserModel.updateOne(
+            { _id: userId },
+            { $pull: { cart: courseId } } // Remove courseId from cart array
+          );
+          return { message: 'Course removed from cart', inCart:false, success:true};
+        } else {
+          // If courseId is not in cart, add it
+          await UserModel.updateOne(
+            { _id: userId },
+            { $addToSet: { cart: courseId } } // Add courseId to cart array, ensuring uniqueness
+          );
+          return { message: 'Course added to cart', inCart:true, success:true};
+        }
+      } catch (error) {
+        console.error('Error toggling course in cart:', error);
+        throw new Error('Failed to update cart');
+      }
+    }
+
+      async CheckIfInCart(userId: string, courseId: string): Promise<{ inCart: boolean }> {
+        try {
+          const user = await UserModel.findOne(
+            { _id: userId, cart: { $in: [courseId] } },
+            { _id: 1 } // Only return _id to minimize data retrieval
+          );
+          return { inCart: !!user }; // Return true if user is found, false otherwise
+        } catch (error) {
+          console.error('Error checking if course is in cart:', error);
+          throw new Error('Failed to check cart status');
+        }
+      }
 
 };
 

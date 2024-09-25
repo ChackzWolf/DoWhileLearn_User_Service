@@ -136,17 +136,17 @@ export class UserService implements IUserService{
         }
     } 
     
-    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser, accessToken?:string, refreshToken?:string  , _id?:string}> {
+    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser, accessToken?:string, refreshToken?:string  , userId?:string}> {
         try {
             const {email, password} = loginData;
             const userData = await repository.findByEmail(email);
             if(userData){
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
-                    const _id = userData._id;
+                    const userId = userData._id;
                     const {accessToken , refreshToken} = createToken(userData);
 
-                    return {success:true, message: "User login successful.", userData, accessToken, refreshToken, _id};
+                    return {success:true, message: "User login successful.", userData, accessToken, refreshToken, userId};
                 }else {
                     return { success: false, message: "Invalid password."}
                 }
@@ -187,6 +187,30 @@ export class UserService implements IUserService{
             return { success: false };
         }
     }
-    
-    
+
+    async addToCart(data:{userId:string,courseId:string}):Promise<{message?:string, success:boolean, inCart?:boolean}>{
+        try {
+            console.log(data, 'data form use ncase')
+           const response = await repository.toggleCourseInCart(data.userId,data.courseId)
+           if(response.success){
+                return {success:true, message: "course added to cart", inCart:response.inCart};
+           }else{
+            return {success: false}
+           }
+
+        } catch (error) {
+            console.log(error)
+            return {success:false};
+        }
+    }
+
+    async isInCart(data:{userId:string,courseId:string}):Promise<{inCart?:boolean,success:boolean}>{
+        try {
+            const response = await repository.CheckIfInCart(data.userId,data.courseId);
+            console.log(response)
+            return {inCart:response.inCart,success:true};
+        } catch (err) {
+            return {success:false};
+        }
+    }
 }  

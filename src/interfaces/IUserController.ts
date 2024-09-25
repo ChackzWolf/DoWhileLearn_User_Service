@@ -6,7 +6,7 @@ export interface BlockUnblockRequest {
 }
 export interface BlockUnblockResponse {
     success: boolean;
-    message?: string;
+    message?: string; 
 }
 
 export interface IUserController {

@@ -2,8 +2,10 @@ import { IUser, ITempUser } from "../models/User.model";
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<IUser | null>;
-  createTempUser(tempUserData: Partial<ITempUser>): Promise<ITempUser | null>;
+  createTempUser(tempUserData: Partial<ITempUser>): Promise<ITempUser | null>; 
   createUser(userData: Partial<IUser>): Promise<IUser | null>;
   blockUnblock(userId: string): Promise<{ success: boolean; message?: string }>;
   getAllUsers(): Promise<IUser[] | null>;
-}
+  toggleCourseInCart(userId: string, courseId: string):Promise<{message?:string, success:boolean, inCart?: boolean}>
+  CheckIfInCart(userId: string, courseId: string): Promise<{ inCart: boolean }>
+} 
