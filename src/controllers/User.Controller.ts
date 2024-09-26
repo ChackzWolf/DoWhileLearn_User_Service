@@ -53,6 +53,7 @@ export class UserController implements IUserController{
  
     async userLogin(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void>{
         try{
+            console.log('trig')
             const data = call.request;
             const response = await userService.userLogin(data);
             console.log(response, 'response from controller ')

@@ -64,7 +64,7 @@ const UserSchema: Schema<IUser> = new Schema({
 
 }, {
     timestamps: true
-});
+}); 
 
 
 
