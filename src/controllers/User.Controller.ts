@@ -48,13 +48,13 @@ export class UserController implements IUserController{
             callback(null,response);
         }catch(err){
             callback(err as grpc.ServiceError) 
-        }
+        } 
     } 
  
     async userLogin(call: grpc.ServerUnaryCall<any, any>, callback: grpc.sendUnaryData<any>): Promise<void>{
         try{
-            console.log('trig')
-            const data = call.request;
+            console.log('trig')  
+            const data = call.request; 
             const response = await userService.userLogin(data);
             console.log(response, 'response from controller ')
             callback(null, response);
@@ -102,6 +102,28 @@ export class UserController implements IUserController{
             const response = await userService.isInCart(data);
             callback(null, response);
         } catch (err) {
+            
+        }
+    }
+
+    async addToPurchaseList(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void>{
+        try {
+            const data= call.request
+            const response = await userService.addToPurchaseList(data)
+            console.log(response,'response from controller');
+            callback(null,response)
+        } catch (err) {
+            callback(err as grpc.ServiceError);
+        }
+    }
+
+    async CourseStatus(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void>{
+        try {
+            const data = call.request;
+            const response = await userService.checkCourseStatus(data)
+            console.log(response, 'response form checking course status')
+            callback(null,response)
+        } catch (error) {
             
         }
     }

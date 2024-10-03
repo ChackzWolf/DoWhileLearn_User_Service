@@ -81,7 +81,9 @@ server.addService(userProto.UserService.service, {
     FetchStudentData: controller.fetchStudents,
     ToggleBlock: controller.blockUnblock,
     AddToCart: controller.addToCart,
-    IsInCart: controller.isInCart,
+    IsInCart: controller.isInCart, 
+    AddPurchasedCourses: controller.addToPurchaseList, 
+    CourseStatus: controller.CourseStatus,
 })
 
 grpcServer()

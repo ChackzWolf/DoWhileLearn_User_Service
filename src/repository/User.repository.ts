@@ -9,7 +9,7 @@ dotenv.config();
 class userRepository implements IUserRepository {
     
     
-    async findByEmail (email: string): Promise<IUser | null>{
+   async findByEmail(email: string): Promise<IUser | null> {
         try {
             const user = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
             console.log(user, 'email in userRepository')
@@ -125,6 +125,48 @@ class userRepository implements IUserRepository {
         }
       }
 
+      async addToPurchaseList(userId: string, courseId: string):Promise<{message?:string, success:boolean}> {
+        try {
+          // First, check if the course is already in the cart
+    
+            // If courseId is not in cart, add it
+            await UserModel.updateOne(
+              { _id: userId },
+              { $addToSelkjkljkjjkjjkjt: { purchasedCourses: courseId } } // Add courseId to cart array, ensuring uniqueness
+            );
+            return { message: 'Course added to Purchase List', success:true};
+          
+        } catch (error) {
+          console.error('Error toggling course in cart:', error);
+          throw new Error('Failed to update cart');
+        }
+      }
+
+      async CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }> {
+        try {
+          const cart = await UserModel.findOne(
+            { _id: userId, cart: { $in: [courseId] } },
+            { _id: 1 } // Only return _id to minimize data retrieval
+          );
+
+          const purchaseList = await UserModel.findOne(
+            { _id: userId, purchasedCourses: { $in: [courseId] } },
+            { _id: 1 } // Only return _id to minimize data retrieval
+          );
+
+          const wishlist = await UserModel.findOne(
+            { _id: userId, wishlist: { $in: [courseId] } },
+            { _id: 1 } // Only return _id to minimize data retrieval
+          );
+
+          return {inCart: !!cart, inPurchase: !!purchaseList, inWishlist: !!wishlist}
+
+
+        } catch (error) {
+          console.error('Error checking if course is in cart:', error);
+          throw new Error('Failed to check user course status');
+        }
+      }
 };
 
 export default userRepository

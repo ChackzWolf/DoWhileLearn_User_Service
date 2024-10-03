@@ -8,4 +8,6 @@ export interface IUserRepository {
   getAllUsers(): Promise<IUser[] | null>;
   toggleCourseInCart(userId: string, courseId: string):Promise<{message?:string, success:boolean, inCart?: boolean}>
   CheckIfInCart(userId: string, courseId: string): Promise<{ inCart: boolean }>
+  addToPurchaseList(userId: string, courseId: string):Promise<{message?:string, success:boolean}>
+  CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>
 } 

@@ -5,6 +5,7 @@ import { generateOTP } from "../utils/Generate.OTP";
 import { SendVerificationMail } from "../utils/Send.email";
 import { IUserService } from "../interfaces/IUse.Case";
 import createToken from "../utils/Activation.token";
+import { StatusCode } from "../interfaces/enums";
 dotenv.config();
 
 interface User{
@@ -211,6 +212,35 @@ export class UserService implements IUserService{
             return {inCart:response.inCart,success:true};
         } catch (err) {
             return {success:false};
+        }
+    }
+
+    async addToPurchaseList (data:{userId:string,courseId:string}){
+        try {
+            console.log(data)
+            const response = await repository.addToPurchaseList(data.userId,data.courseId);
+            console.log(response)
+            if(response.success){
+                return {message:response.message, success: true, status: StatusCode.Created}
+            }else{
+                return {message: "error creating order", success: false, status: StatusCode.NotFound}
+            }
+        } catch (error) {
+            console.log(error)
+            return {message :"Error occured while creating order", success: false , status: StatusCode.ExpectationFailed }
+        }
+    }
+
+    async checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>{
+        try {
+            const response = await repository.CourseStatus(data.userId,data.courseId);
+            console.log(response)
+            return {inCart:response.inCart, inPurchase:response.inPurchase, inWishlist:response.inWishlist};
+        } catch (error) {
+            
+            console.log(error)
+            throw new Error('Failed to check user course status');
+
         }
     }
 }  
