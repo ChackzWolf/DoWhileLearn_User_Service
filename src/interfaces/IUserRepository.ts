@@ -1,4 +1,11 @@
 import { IUser, ITempUser } from "../models/User.model";
+import { Types } from 'mongoose';
+
+interface CartItem {
+  courseId: Types.ObjectId;
+  quantity: number; 
+}
+
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<IUser | null>;
@@ -10,4 +17,5 @@ export interface IUserRepository {
   CheckIfInCart(userId: string, courseId: string): Promise<{ inCart: boolean }>
   addToPurchaseList(userId: string, courseId: string):Promise<{message?:string, success:boolean}>
   CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>
+  getCartItems(userId: string): Promise<CartItem[] | null> 
 } 

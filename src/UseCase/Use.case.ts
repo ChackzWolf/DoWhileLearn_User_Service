@@ -6,6 +6,8 @@ import { SendVerificationMail } from "../utils/Send.email";
 import { IUserService } from "../interfaces/IUse.Case";
 import createToken from "../utils/Activation.token";
 import { StatusCode } from "../interfaces/enums";
+import { Types } from 'mongoose';
+
 dotenv.config();
 
 interface User{
@@ -28,6 +30,11 @@ interface VerifyOtpResponse {
     accessToken?: string;
     refreshToken?: string;
     _id?:string
+}
+
+interface CartItem {
+    courseId: Types.ObjectId;
+    quantity: number;
 }
 
 
@@ -243,4 +250,21 @@ export class UserService implements IUserService{
 
         }
     }
+
+    async getCartItems(data: { userId: string }): Promise<{ cart?: CartItem[], success: boolean }> {
+        try {
+          const response = await repository.getCartItems(data.userId);
+            console.log(response, 'response in userCase')
+          if (!response) {
+            return { success: false }; // Return false if no items are found or the user doesn't exist
+          }
+      
+          // Map the cart items (if they exist) to a string array (e.g., courseId strings)
+
+          return { cart : response, success: true };
+        } catch (error) {
+          console.error("Error getting cart items:", error);
+          return { success: false };
+        }
+      }
 }  

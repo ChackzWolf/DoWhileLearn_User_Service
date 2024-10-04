@@ -1,10 +1,19 @@
 import UserModel, {IUser,ITempUser,TempUser} from "../models/User.model";
 import { IUserRepository } from "../interfaces/IUserRepository";
 import dotenv from "dotenv";
+import { Document, Types } from 'mongoose';
 
 dotenv.config();
 
+interface CartItem {
+  courseId: Types.ObjectId;
+  quantity: number;
+}
 
+interface UserCart extends Document {
+  _id: Types.ObjectId;
+  cart: CartItem[];
+}
 
 class userRepository implements IUserRepository {
     
@@ -132,7 +141,7 @@ class userRepository implements IUserRepository {
             // If courseId is not in cart, add it
             await UserModel.updateOne(
               { _id: userId },
-              { $addToSelkjkljkjjkjjkjt: { purchasedCourses: courseId } } // Add courseId to cart array, ensuring uniqueness
+              { $addToSet: { purchasedCourses: courseId } } // Add courseId to cart array, ensuring uniqueness
             );
             return { message: 'Course added to Purchase List', success:true};
           
@@ -167,6 +176,21 @@ class userRepository implements IUserRepository {
           throw new Error('Failed to check user course status');
         }
       }
+
+      async getCartItems(userId: string): Promise<CartItem[] | null> {
+        try {
+          const cartItems = await UserModel.findById(userId).select('cart').lean<UserCart>();
+          
+          if (!cartItems) {
+            throw new Error("User not found");
+          }
+          
+          return cartItems.cart || [];
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+          throw new Error('Failed to retrieve cart items');
+        }
+      }
 };
 
-export default userRepository
+export default userRepository 

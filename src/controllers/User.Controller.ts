@@ -116,7 +116,7 @@ export class UserController implements IUserController{
             callback(err as grpc.ServiceError);
         }
     }
-
+ 
     async CourseStatus(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void>{
         try {
             const data = call.request;
@@ -124,7 +124,20 @@ export class UserController implements IUserController{
             console.log(response, 'response form checking course status')
             callback(null,response)
         } catch (error) {
-            
+            callback(error as grpc.ServiceError);
+        }
+    }
+
+    async GetCartItems(call:grpc.ServerUnaryCall<any, any>, callback:grpc.sendUnaryData<any>):Promise<void> {
+        try {
+            console.log('trug')
+            const data = call.request;
+            console.log(data,'data form controller')
+            const response = await userService.getCartItems(data);
+            console.log(response)
+            callback(null,{success: response.success,courseIds : response.cart})
+        } catch (error) {
+            callback(error as grpc.ServiceError);
         }
     }
 }
