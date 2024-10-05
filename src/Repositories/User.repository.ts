@@ -1,19 +1,17 @@
-import UserModel, {IUser,ITempUser,TempUser} from "../models/User.model";
-import { IUserRepository } from "../interfaces/IUserRepository";
+import UserModel, { TempUser } from "../Schemas/User.schema";
+import { IUser, ITempUser, UserCart } from "../Interfaces/Models/IUser";
+import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interface";
 import dotenv from "dotenv";
-import { Document, Types } from 'mongoose';
+import { 
+  CreateUserDTO,
+  BlockUnblockResponse, 
+  CourseInCartResponse, 
+  AddToPurchaseListResponse,  
+  CartItem,
+} from '../Interfaces/DTOs/IRepository.dto';
 
 dotenv.config();
 
-interface CartItem {
-  courseId: Types.ObjectId;
-  quantity: number;
-}
-
-interface UserCart extends Document {
-  _id: Types.ObjectId;
-  cart: CartItem[];
-}
 
 class userRepository implements IUserRepository {
     
@@ -47,7 +45,7 @@ class userRepository implements IUserRepository {
     }
 
 
-    async createUser(userData: Partial<IUser>): Promise<IUser | null>{
+    async createUser(userData: CreateUserDTO): Promise<IUser | null>{
         try {
             const { firstName, lastName, email, password } = userData ;
             const createdUser = new UserModel({
@@ -69,7 +67,7 @@ class userRepository implements IUserRepository {
         }
     } 
 
-    async blockUnblock(userId:string):Promise<{ success: boolean; message?: string }>  {
+    async blockUnblock(userId:string):Promise<BlockUnblockResponse>  {
         try{
             const user = await UserModel.findById(userId)
             if(!user){
@@ -95,7 +93,7 @@ class userRepository implements IUserRepository {
     }
 
 
-    async toggleCourseInCart(userId: string, courseId: string):Promise<{message?:string, success:boolean, inCart?: boolean}> {
+    async toggleCourseInCart(userId: string, courseId: string):Promise<CourseInCartResponse > {
       try {
         // First, check if the course is already in the cart
         const user = await UserModel.findOne({ _id: userId, cart: { $in: [courseId] } });
@@ -134,9 +132,9 @@ class userRepository implements IUserRepository {
         }
       }
 
-      async addToPurchaseList(userId: string, courseId: string):Promise<{message?:string, success:boolean}> {
+      async addToPurchaseList(userId: string, courseId: string):Promise<AddToPurchaseListResponse> {
         try {
-          // First, check if the course is already in the cart
+          // First, check if the course is already in the cart  
     
             // If courseId is not in cart, add it
             await UserModel.updateOne(

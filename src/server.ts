@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { UserController }  from "./controllers/User.Controller";
-import { connectDB } from "./configs/mongoDB";
+import { UserController }  from "./Controllers/User.controller";
+import { connectDB } from "./Configs/DB.configs/MongoDB";
 import morgan from 'morgan';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -27,7 +27,7 @@ const logger = winston.createLogger({
       new DailyRotateFile({
         filename: 'logs/application-%DATE%.log',
         datePattern: 'YYYY-MM-DD',
-        maxFiles: '14d' // Keep logs for 14 days
+        maxFiles: '7d' // Keep logs for 14 days
       })
     ],
   });
@@ -83,8 +83,8 @@ server.addService(userProto.UserService.service, {
     AddToCart: controller.addToCart,
     IsInCart: controller.isInCart, 
     AddPurchasedCourses: controller.addToPurchaseList, 
-    CourseStatus: controller.CourseStatus,
-    GetCartItemsIds: controller.GetCartItems
+    CourseStatus: controller.courseStatus,
+    GetCartItemsIds: controller.getCartItems
 })
 
 grpcServer()

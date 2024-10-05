@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import jwt ,{ Secret }from "jsonwebtoken";
-import { IUser } from "../models/User.model";
+import { IUser } from "../Schemas/User.schema";
 
 dotenv.config()
 

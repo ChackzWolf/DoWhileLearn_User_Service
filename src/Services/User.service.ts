@@ -1,51 +1,50 @@
-import userRepository from "../repository/User.repository";
-import  {IUser, ITempUser, TempUser} from "../models/User.model";
+import userRepository from "../Repositories/User.repository";
+import  { TempUser } from "../Schemas/User.schema";
+import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
 import { generateOTP } from "../utils/Generate.OTP";
 import { SendVerificationMail } from "../utils/Send.email";
-import { IUserService } from "../interfaces/IUse.Case";
+import { IUserService } from "../Interfaces/IService/IService.interface";
 import createToken from "../utils/Activation.token";
-import { StatusCode } from "../interfaces/enums";
-import { Types } from 'mongoose';
+import { StatusCode } from "../Interfaces/Enums/Enums";
+import { 
+    UserRegisterDTO, 
+    UserRegisterResponse, 
+    VerifyOtpDTO, 
+    VerifyOtpResponse, 
+    ResendOtpDTO, 
+    ResendOtpResponse, 
+    UserLoginDTO, 
+    UserLoginResponse, 
+    BlockUnblockDTO, 
+    BlockUnblockResponse,
+    FetchStudentsResponse
+  } from '../Interfaces/DTOs/IService.dto';
 
 dotenv.config();
 
-interface User{
-    firstName:string;
-    lastName: string; 
-    email: string;
-    password: string;
-}
 
-interface VerifyOtpData{
-    enteredOTP:string;
-    email:string;
-    tempId:string
-}
 
-interface VerifyOtpResponse {
-    success: boolean;
-    message: string;
-    userId?: string;
-    accessToken?: string;
-    refreshToken?: string;
-    _id?:string
-}
 
-interface CartItem {
-    courseId: Types.ObjectId;
-    quantity: number;
-}
+// interface VerifyOtpResponse {
+//     success: boolean;
+//     message: string;
+//     userId?: string;
+//     accessToken?: string;
+//     refreshToken?: string;
+//     _id?:string
+// }
+
+
 
 
 const repository = new userRepository()
 
-interface promiseReturn { success: boolean, message: string, tempId?: string, email?: string }
  
 
 export class UserService implements IUserService{
     
-    async userRegister(userData: User): Promise <promiseReturn> {
+    async userRegister(userData: UserRegisterDTO): Promise<UserRegisterResponse> {
         try{
             console.log(`userService ${userData}`)
             const email = userData.email;
@@ -83,7 +82,7 @@ export class UserService implements IUserService{
         } 
     }
 
-    async VerifyOtp(passedData: VerifyOtpData): Promise<VerifyOtpResponse> {
+    async VerifyOtp(passedData: VerifyOtpDTO): Promise<VerifyOtpResponse> {
         try {
             const { tempId, enteredOTP } = passedData;
             const tempUser: ITempUser | null = await TempUser.findById(tempId);
@@ -123,7 +122,7 @@ export class UserService implements IUserService{
     }
 
 
-    async ResendOTP(passedData : VerifyOtpData):Promise<{success: boolean, message:string}> {
+    async ResendOTP(passedData: ResendOtpDTO): Promise<ResendOtpResponse> {
         try{
             const {email,tempId} = passedData;
             let newOTP = generateOTP();
@@ -144,7 +143,7 @@ export class UserService implements IUserService{
         }
     } 
     
-    async userLogin(loginData: { email: string; password: string; }): Promise<{ success: boolean; message: string; userData?: IUser, accessToken?:string, refreshToken?:string  , userId?:string}> {
+    async userLogin(loginData: UserLoginDTO): Promise<UserLoginResponse> {
         try {
             const {email, password} = loginData;
             const userData = await repository.findByEmail(email);
@@ -168,7 +167,7 @@ export class UserService implements IUserService{
     }
 
 
-    async blockUnblock(data:{userId:string}): Promise<{success:boolean; message?:string}> {
+    async blockUnblock(data: BlockUnblockDTO): Promise<BlockUnblockResponse> {
         try{
             console.log(data.userId,'from use case')
             const response = await repository.blockUnblock(data.userId);
@@ -182,7 +181,7 @@ export class UserService implements IUserService{
         }
     }
 
-    async fetchStudents(): Promise<{ success: boolean; students?: IUser[] }> {
+    async fetchStudents(): Promise<FetchStudentsResponse> {
         try {
             const students = await repository.getAllUsers();
             console.log(students, 'students')

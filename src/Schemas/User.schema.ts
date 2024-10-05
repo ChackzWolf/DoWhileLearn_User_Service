@@ -1,32 +1,11 @@
-import mongoose, { Document, Schema,Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { IUser, ITempUser } from "../Interfaces/Models/IUser";
 
 
-export interface ITempUser extends Document {
-    userData: IUser;
-    otp: string;
-    createdAt: Date;
-    _id: Types.ObjectId; // This is the correct type for MongoDB _id
-}
 
-export interface IUser extends Document {
-    _id:string
-    firstName:string;
-    lastName:string;
-    email: string;
-    password: string;
-    isblocked: boolean;
-    purchasedCourses: mongoose.Types.ObjectId[]; // Array of ObjectId values
-    cart:mongoose.Types.ObjectId[]; // Array of ObjectId values
-    wishlist:mongoose.Types.ObjectId[]; // Array of ObjectId values
-    comparePassword: (password: string) => Promise<boolean>;
-    SignAccessToken: () => string;
-    SignRefreshToken: () => string;
-    block(): Promise<void>;
-    unblock(): Promise<void>;
-    toggleBlockStatus(): Promise<void>;
-} 
+
 
 // Create the schema
 const UserSchema: Schema<IUser> = new Schema({
