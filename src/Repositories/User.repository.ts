@@ -48,7 +48,7 @@ class userRepository implements IUserRepository {
     async createUser(userData: CreateUserDTO): Promise<IUser | null>{
         try {
             const { firstName, lastName, email, password } = userData ;
-            const createdUser = new UserModel({
+            const createdUser = new UserModel({ 
                 firstName,
                 lastName,
                 email,
