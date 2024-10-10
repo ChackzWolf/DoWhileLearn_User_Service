@@ -189,6 +189,15 @@ class userRepository implements IUserRepository {
           throw new Error('Failed to retrieve cart items');
         }
       }
+
+      async isBlocked(userId: string): Promise<boolean | undefined> {
+        try {
+          const user : IUser | null= await UserModel.findById(userId)
+          return user?.isblocked
+        } catch (error) {
+          throw new Error("User not found");
+        }
+      }
 };
 
 export default userRepository 

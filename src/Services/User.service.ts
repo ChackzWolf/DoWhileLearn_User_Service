@@ -2,10 +2,10 @@ import userRepository from "../Repositories/User.repository";
 import  { TempUser } from "../Schemas/User.schema";
 import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
-import { generateOTP } from "../utils/Generate.OTP";
-import { SendVerificationMail } from "../utils/Send.email";
+import { generateOTP } from "../Utils/Generate.OTP";
+import { SendVerificationMail } from "../Utils/Send.email";
 import { IUserService } from "../Interfaces/IService/IService.interface";
-import createToken from "../utils/Activation.token";
+import createToken from "../Utils/Activation.token";
 import { StatusCode } from "../Interfaces/Enums/Enums";
 import { 
     UserRegisterDTO, 
@@ -107,7 +107,7 @@ export class UserService implements IUserService{
             return { 
                 success: true, 
                 message: "User has been registered successfully.", 
-                userId,// Ensure _id is properly typed
+                userId,
                 accessToken, 
                 refreshToken 
             };
@@ -151,8 +151,13 @@ export class UserService implements IUserService{
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
                     const userId = userData._id;
-                    const {accessToken , refreshToken} = createToken(userData);
 
+                    const isBlocked = await repository.isBlocked(userId)
+                    if(isBlocked){
+                        return {success: false, message : 'isBlocked'}
+                    }
+                    const {accessToken , refreshToken} = createToken(userData);
+                    
                     return {success:true, message: "User login successful.", userData, accessToken, refreshToken, userId};
                 }else {
                     return { success: false, message: "Invalid password."}
@@ -266,4 +271,14 @@ export class UserService implements IUserService{
           return { success: false };
         }
       }
+
+    async checkIsBlocked(data: {userId:string}): Promise<{isBlocked:boolean | undefined}> {
+        try {
+            const response = await repository.isBlocked(data.userId);
+
+            return {isBlocked : response }
+        } catch (error) {
+            return {isBlocked:true}
+        }
+    }
 }  

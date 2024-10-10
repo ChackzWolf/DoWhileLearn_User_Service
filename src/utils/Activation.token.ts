@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import jwt ,{ Secret }from "jsonwebtoken";
-import { IUser } from "../Schemas/User.schema";
-
+import { IUser } from "../Interfaces/Models/IUser";
 dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -19,7 +18,7 @@ const createToken = (user:IUser) : {accessToken:string,refreshToken:string} =>{
             role:"USER",
             email: user.email,  
         },JWT_SECRET as Secret,
-        { expiresIn: '51m' }
+        { expiresIn: '1m' }
     )
     
     const refreshToken = jwt.sign(
