@@ -1,4 +1,4 @@
-import userRepository from "../Repositories/User.repository";
+import userRepository from "../Repositories/UserRepository/User.repository";
 import  { TempUser } from "../Schemas/User.schema";
 import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
@@ -22,19 +22,6 @@ import {
   } from '../Interfaces/DTOs/IService.dto';
 
 dotenv.config();
-
-
-
-
-// interface VerifyOtpResponse {
-//     success: boolean;
-//     message: string;
-//     userId?: string;
-//     accessToken?: string;
-//     refreshToken?: string;
-//     _id?:string
-// }
-
 
 
 
@@ -80,10 +67,10 @@ export class UserService implements IUserService{
         }catch(err){
             throw new Error(`Failed to signup: ${err}`);
         } 
-    }
+    } 
 
     async VerifyOtp(passedData: VerifyOtpDTO): Promise<VerifyOtpResponse> {
-        try {
+        try { 
             const { tempId, enteredOTP } = passedData;
             const tempUser: ITempUser | null = await TempUser.findById(tempId);
             
@@ -218,13 +205,14 @@ export class UserService implements IUserService{
 
     async isInCart(data:{userId:string,courseId:string}):Promise<{inCart?:boolean,success:boolean}>{
         try {
+            console.log('trig')
             const response = await repository.CheckIfInCart(data.userId,data.courseId);
-            console.log(response)
+            console.log(response,'response from servcie')
             return {inCart:response.inCart,success:true};
         } catch (err) {
             return {success:false};
         }
-    }
+    } 
 
     async addToPurchaseList (data:{userId:string,courseId:string}){
         try {

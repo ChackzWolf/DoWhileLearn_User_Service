@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IUser, ITempUser } from "../Interfaces/Models/IUser";
+import { configs } from "../Configs/ENV_configs/ENV.configs";
 
 
 
@@ -96,9 +97,9 @@ UserSchema.pre<IUser>("save", async function (next) {
 UserSchema.methods.SignAccessToken = function () {
     return jwt.sign(
       { id: this._id, role: this.role },
-      process.env.ACCESS_TOKEN || "",
+      configs.JWT_SECRET,
       {
-        expiresIn: "5m",
+        expiresIn: configs.JWT_EXPIRATION_TIME,
       }
     );
   };
@@ -107,9 +108,9 @@ UserSchema.methods.SignAccessToken = function () {
 UserSchema.methods.SignRefreshToken = function () {
     return jwt.sign(
       { id: this._id, role: this.role },
-      process.env.REFRESH_TOKEN || "",
+      configs.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: "3d",
+        expiresIn: configs.REFRESH_TOKEN_EXPIRATION_TIME,
       }
     );
 };

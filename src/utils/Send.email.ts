@@ -1,14 +1,15 @@
 import nodemailer from "nodemailer"
+import { configs } from "../Configs/ENV_configs/ENV.configs";
 
 
 export const SendVerificationMail = async (email: string, otp: string): Promise<void> => {
     try {
-        console.log(process.env.EMAIL, 'Sender')
+        console.log(configs.DWL_EMAIL, 'Sender')
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD
+                user: configs.DWL_EMAIL,
+                pass: configs.DWL_PASSWORD
             },
         });
         console.log('mail');
