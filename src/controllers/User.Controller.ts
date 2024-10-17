@@ -169,6 +169,17 @@ export class UserController implements IUserController{
             callback(error as grpc.ServiceError);
         }
     }
+
+    async resetPassword(call: grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>): Promise<void> {
+        try{
+            console.log('trig respassword controller')
+            const data = call.request;
+            const response = await userService.resetPassword(data)
+            callback(null, response)
+        }catch(error){
+            callback(error as grpc.ServiceError);
+        }
+    }
 }
 
  

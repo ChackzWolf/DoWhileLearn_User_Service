@@ -10,6 +10,7 @@ import {
 } from '../../Interfaces/DTOs/IRepository.dto';
 import { BaseRepository } from "../BaseRepository/Base.repository";
 import { ObjectId } from "mongodb";
+import { StatusCode } from "../../Interfaces/Enums/Enums";
 
 
 class userRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -220,6 +221,21 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         try {
           const user : IUser | null= await UserModel.findById(userId)
           return user?.isblocked
+        } catch (error) {
+          throw new Error("User not found");
+        }
+      }
+
+      async passwordChange(userId:string,newPassword:string):Promise<{message:string,success:boolean,status:number}>{
+        try{
+          const user: IUser | null = await this.findById(userId);
+          if (!user) {
+            return { message: 'User not found!', success: false, status: StatusCode.NotFound };
+          }
+          // Ensure password is hashed before saving (if necessary)
+          user.password = newPassword
+          await user.save(); // Save the updated user with the new password
+          return { message: 'Password updated successfully!', success: true, status: StatusCode.OK }; 
         } catch (error) {
           throw new Error("User not found");
         }

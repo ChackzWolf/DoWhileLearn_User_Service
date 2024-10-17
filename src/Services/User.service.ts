@@ -269,4 +269,14 @@ export class UserService implements IUserService{
             return {isBlocked:true}
         }
     }
+
+    async resetPassword(data: {userId:string, newPassword:string}){
+        try {
+            const {userId,newPassword} = data;
+            const response = await repository.passwordChange(userId, newPassword);
+            return response
+        } catch (error) {
+            return {message:'error occured in service while changing password', success:false, status: StatusCode.NotModified}
+        }
+    }
 }  
