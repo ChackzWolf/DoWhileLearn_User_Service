@@ -270,13 +270,47 @@ export class UserService implements IUserService{
         }
     }
 
-    async resetPassword(data: {userId:string, newPassword:string}){
+    async resetPassword(data: {userId:string, password:string}){
         try {
-            const {userId,newPassword} = data;
-            const response = await repository.passwordChange(userId, newPassword);
+            const {userId,password} = data;
+            const response = await repository.passwordChange(userId, password);
             return response
         } catch (error) {
             return {message:'error occured in service while changing password', success:false, status: StatusCode.NotModified}
+        }
+    }
+
+    async sendEmailOtp (data: {email:string}){
+        try {
+            const email = data.email; 
+            const emailExists = await repository.findByEmail(email);
+            if(!emailExists){
+                console.log("email not found triggered")
+                return {success: false, message: "Email not found", status:StatusCode.NotFound };
+            }
+            let otp = generateOTP();
+            console.log(`OTP : [ ${otp} ]`);
+            await SendVerificationMail(email,otp)
+            console.log('1')
+            await repository.storeOTP(email,otp);
+            console.log('2')
+            return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email};
+        } catch (error) {
+            return {message:'error occured in sending OTP.', success:false, status: StatusCode.Conflict}
+        }
+    }
+
+    async resetPasswordVerifyOTP(data: {email:string,enteredOTP:string}){
+        try { 
+            const {email,enteredOTP} = data;
+            const response = await repository.verifyOTP(email,enteredOTP)
+            const user = await repository.findByEmail(email);
+            if(response && user){
+                return {success:true, message: 'Email has been verified successfuly.',status:StatusCode.Accepted,email,userId:user._id}
+            }
+            return {success:false, message: 'Entered wrong OTP.', status:StatusCode.NotAcceptable,email}
+        } catch (error) {
+            return {success:false, message: "Something went wrong.",status:StatusCode.FailedDependency, email:data.email} 
         }
     }
 }  

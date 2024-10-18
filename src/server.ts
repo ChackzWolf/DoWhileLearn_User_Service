@@ -12,6 +12,22 @@ import express from "express"
 import { configs } from "./Configs/ENV_configs/ENV.configs";
 const app = express();
 
+// const redis = require('redis');
+
+// // Create a Redis client
+// export const client = redis.createClient({
+//   url: 'redis://localhost:6379' // Replace with your Redis server URL
+// });
+
+// // Handle connection errors
+// client.on('error', (error:unknown) => {
+//   console.log('Redis error:', error);
+// });
+
+// // Connect to Redis
+// client.connect().then(() => {
+//   console.log('Connected to Redis');
+// });
 
 
 
@@ -86,7 +102,10 @@ server.addService(userProto.UserService.service, {
     AddPurchasedCourses: controller.addToPurchaseList, 
     CourseStatus: controller.courseStatus,
     GetCartItemsIds: controller.getCartItems,
-    isBlocked: controller.isBlocked
+    isBlocked: controller.isBlocked,
+    SendOtpToEmail: controller.sendOtpToEmail ,
+    VerifyOTPResetPassword : controller.VerifyEnteredOTP,
+    ResetPassword: controller.resetPassword,
 })
 
 grpcServer()

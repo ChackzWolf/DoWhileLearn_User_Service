@@ -69,6 +69,18 @@ const TempUserShcema: Schema <ITempUser> = new Schema({
     timestamps: true,
 })
 
+
+const otpSchema = new Schema({
+    email: { type: String, required: true, unique: true },
+    otp: { type: String, required: true },
+    expiresAt: { type: Date, required: true }
+  });
+
+
+
+
+
+
 UserSchema.methods.toggleBlockStatus = async function (): Promise<void> {
     this.isblocked = !this.isblocked; // Toggle the blocked status
     await this.save(); // Save the updated document
@@ -106,7 +118,7 @@ UserSchema.methods.SignAccessToken = function () {
 
 // sign refresh token
 UserSchema.methods.SignRefreshToken = function () {
-    return jwt.sign(
+    return jwt.sign( 
       { id: this._id, role: this.role },
       configs.REFRESH_TOKEN_SECRET,
       {
@@ -115,14 +127,14 @@ UserSchema.methods.SignRefreshToken = function () {
     );
 };
 
-// compare password
+// compare password 
 UserSchema.methods.comparePassword = async function (enteredPassword: string) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-
-
+export const Otp = mongoose.model("setOTP",otpSchema)
 export const TempUser = mongoose.model<ITempUser>("TempUserData",TempUserShcema)
 const UserModel = mongoose.model<IUser>("User", UserSchema);
+
 
 export default UserModel; 

@@ -179,6 +179,30 @@ export class UserController implements IUserController{
         }catch(error){
             callback(error as grpc.ServiceError);
         }
+    } 
+
+    async sendOtpToEmail (call: grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>): Promise<void> {
+        try {
+            console.log('trig to otp email send controller ', call.request)
+            const data = call.request;
+            const response = await userService.sendEmailOtp(data);
+            console.log('reseponse from controller', response);
+            callback(null, response);
+        } catch (error) {
+            callback(error as grpc.ServiceError);
+        }
+    }
+
+    async VerifyEnteredOTP (call: grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>): Promise<void> {
+        try {
+            console.log('trig', call.request);
+            const data = call.request;
+            const response = await userService.resetPasswordVerifyOTP(data);
+            console.log(response,'response from controller')
+            callback(null,response);
+        } catch (error) {
+            callback(error as grpc.ServiceError);
+        }
     }
 }
 

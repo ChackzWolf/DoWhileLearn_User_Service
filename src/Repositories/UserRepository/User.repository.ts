@@ -1,4 +1,4 @@
-import UserModel, { TempUser } from "../../Schemas/User.schema";
+import UserModel, { TempUser,Otp } from "../../Schemas/User.schema";
 import { IUser, ITempUser, UserCart } from "../../Interfaces/Models/IUser";
 import { IUserRepository } from "../../Interfaces/IRepositories/IRepository.interface";
 import { 
@@ -23,7 +23,6 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         try {
             // const uuser = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
             const user = await this.findOne({email})
-            console.log(user, 'email in userRepository')
             return user;
         } catch (err) {
             console.error(`Error finding user by email: ${err}`);
@@ -240,6 +239,31 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
           throw new Error("User not found");
         }
       }
+
+      async storeOTP(email: string, otp: string) {
+        try {
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+            
+            // Use findOneAndUpdate to either update or create the OTP entry
+            const otpEntry = await Otp.findOneAndUpdate(
+                { email }, // Find the entry with the same email
+                { otp, expiresAt }, // Update the OTP and expiration time
+                { new: true, upsert: true } // Options: return the updated document and create if it doesn't exist
+            );
+    
+            console.log(otpEntry, 'otpentry');
+        } catch (error: unknown) {
+            console.log(error);
+        }
+    }
+
+      async verifyOTP(email:string, otp:string) {
+        const otpEntry = await Otp.findOne({ email, otp, expiresAt: { $gt: new Date() } });
+        return otpEntry !== null;
+      }
+
+ 
+
 };
 
 export default userRepository 
