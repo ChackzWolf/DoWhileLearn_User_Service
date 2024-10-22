@@ -252,17 +252,36 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
             );
     
             console.log(otpEntry, 'otpentry');
+            return otpEntry._id;
         } catch (error: unknown) {
-            console.log(error);
+          throw new Error("User not found");
         }
     }
+
+    async updateStoredOTP(otpId: string, otp: string) {
+      try {
+        const otpEntry = await Otp.findOneAndUpdate(
+          { otpId }, // Find by otpId
+          { otp }, // Update the OTP and expiration time
+          { new: true, upsert: true } // Return updated doc, create if not exists
+        );
+        
+        if (!otpEntry) {
+          throw new Error('Failed to update or create OTP entry.');
+        }
+        
+        return otpEntry;
+      } catch (error) {
+        console.error('Error updating OTP entry:', error);
+        throw error; // Optionally rethrow the error for higher-level handling
+      }
+    }
+    
 
       async verifyOTP(email:string, otp:string) {
         const otpEntry = await Otp.findOne({ email, otp, expiresAt: { $gt: new Date() } });
         return otpEntry !== null;
       }
-
- 
 
 };
 

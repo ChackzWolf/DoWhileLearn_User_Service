@@ -12,25 +12,6 @@ import express from "express"
 import { configs } from "./Configs/ENV_configs/ENV.configs";
 const app = express();
 
-// const redis = require('redis');
-
-// // Create a Redis client
-// export const client = redis.createClient({
-//   url: 'redis://localhost:6379' // Replace with your Redis server URL
-// });
-
-// // Handle connection errors
-// client.on('error', (error:unknown) => {
-//   console.log('Redis error:', error);
-// });
-
-// // Connect to Redis
-// client.connect().then(() => {
-//   console.log('Connected to Redis');
-// });
-
-
-
 
 // error log
 const logger = winston.createLogger({

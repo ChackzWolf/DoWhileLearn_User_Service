@@ -292,11 +292,24 @@ export class UserService implements IUserService{
             console.log(`OTP : [ ${otp} ]`);
             await SendVerificationMail(email,otp)
             console.log('1')
-            await repository.storeOTP(email,otp);
+            const otpId = await repository.storeOTP(email,otp);
             console.log('2')
-            return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email};
+            return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email, otpId};
         } catch (error) {
             return {message:'error occured in sending OTP.', success:false, status: StatusCode.Conflict}
+        }
+    }
+
+    async resendEmailOtp (data: {email: string,otpId:string}) {
+        try {
+            const {email, otpId} = data;
+            let otp = generateOTP();
+            console.log(`OTP : [ ${otp} ]`);
+            await SendVerificationMail(email,otp)
+            await repository.updateStoredOTP(otpId,otp);
+            return {success:true,status : StatusCode.Accepted};
+        } catch (error) {
+            return {success:false, status: StatusCode.Conflict};
         }
     }
 
@@ -313,4 +326,5 @@ export class UserService implements IUserService{
             return {success:false, message: "Something went wrong.",status:StatusCode.FailedDependency, email:data.email} 
         }
     }
+    
 }  
