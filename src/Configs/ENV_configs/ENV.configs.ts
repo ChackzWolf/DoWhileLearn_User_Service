@@ -3,6 +3,8 @@ dotenv.config()
 
 
 export const configs = {
+    // LISTENER PORT
+    PORT : process.env.PORT || 3001,
     // GRPC PORT CONFIG
     USER_GRPC_PORT : process.env.USER_GRPC_PORT || 5001,
 

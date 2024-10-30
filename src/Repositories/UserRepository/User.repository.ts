@@ -159,7 +159,7 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
                 await user.save();
                 return { message: 'Course added to Purchase List', success:true};
               }else{
-                return { message: 'Course already in purchase list', success:false};
+                return { message: 'Course already in purchase list', success:true};
               }
             }else{
               return { message: 'User not found.', success:false};
@@ -170,7 +170,29 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
           throw new Error('Failed to update cart');
         }
       }
+      async removeFromPurchaseList(userId: string, courseId: string):Promise<AddToPurchaseListResponse> {
+        try {
+            const courseObjectId = new ObjectId(courseId);
+            const user = await this.findById(userId);
 
+            if(user){
+              if(!user.purchasedCourses.includes(courseObjectId)){
+                user.purchasedCourses.push(courseObjectId);
+                await user.save();
+                return { message: 'Course added to Purchase List', success:true};
+              }else{
+                return { message: 'Course already in purchase list', success:true};
+              }
+            }else{
+              return { message: 'User not found.', success:false};
+            }
+          
+        } catch (error) {
+          console.error('Error toggling course in cart:', error);
+          throw new Error('Failed to update cart');
+        }
+      }
+      
       async CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }> {
         try {
           const courseObjectId = new ObjectId(courseId);
@@ -255,13 +277,13 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
             return otpEntry._id;
         } catch (error: unknown) {
           throw new Error("User not found");
-        }
+        }  
     }
 
     async updateStoredOTP(otpId: string, otp: string) {
       try {
         const otpEntry = await Otp.findOneAndUpdate(
-          { otpId }, // Find by otpId
+          { _id:otpId }, // Find by otpId
           { otp }, // Update the OTP and expiration time
           { new: true, upsert: true } // Return updated doc, create if not exists
         );

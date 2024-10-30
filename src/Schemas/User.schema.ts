@@ -66,7 +66,7 @@ const TempUserShcema: Schema <ITempUser> = new Schema({
 }
 ,
 {
-    timestamps: true,
+    timestamps: true, 
 })
 
 

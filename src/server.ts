@@ -80,11 +80,11 @@ server.addService(userProto.UserService.service, {
     ToggleBlock: controller.blockUnblock,
     AddToCart: controller.addToCart,
     IsInCart: controller.isInCart, 
-    AddPurchasedCourses: controller.addToPurchaseList, 
     CourseStatus: controller.courseStatus,
     GetCartItemsIds: controller.getCartItems,
     isBlocked: controller.isBlocked,
     SendOtpToEmail: controller.sendOtpToEmail ,
+    ResendOtpToEmail: controller.resendOtpToEmail,
     VerifyOTPResetPassword : controller.VerifyEnteredOTP,
     ResetPassword: controller.resetPassword,
 })
@@ -92,7 +92,15 @@ server.addService(userProto.UserService.service, {
 grpcServer()
 
 
+// Start Kafka consumer
+// controller.start()
+//   .catch(error => console.error('Failed to start kafka course service:', error));
 
+const PORT = configs.PORT; 
+app.listen(PORT, () => {
+  console.log(`Course service running on port ${PORT}`);
+});
+ 
 
 
 

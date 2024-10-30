@@ -20,9 +20,24 @@ import {
     BlockUnblockResponse,
     FetchStudentsResponse
   } from '../Interfaces/DTOs/IService.dto';
+  import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
+
 
 dotenv.config();
-
+export interface OrderEventData {
+    userId: string;
+    tutorId: string;
+    courseId: string;
+    transactionId: string;
+    title: string;
+    thumbnail: string;
+    price: string;
+    adminShare: string; 
+    tutorShare: string;
+    paymentStatus:boolean;
+    timestamp: Date;
+    status: string;
+  }
 
 
 const repository = new userRepository()
@@ -214,22 +229,50 @@ export class UserService implements IUserService{
         }
     } 
 
-    async addToPurchaseList (data:{userId:string,courseId:string}){
+    async addToPurchaseList (orderData: OrderEventData):Promise<void>{
         try {
-            console.log(data)
-            const response = await repository.addToPurchaseList(data.userId,data.courseId);
+            console.log(orderData, "order data form addpurchase list service");
+            const { userId, courseId} = orderData;
+            const response = await repository.addToPurchaseList(userId , courseId);
             console.log(response)
             if(response.success){
-                return {message:response.message, success: true, status: StatusCode.Created}
+                await kafkaConfig.sendMessage('success.order.update', {
+                    success: true,
+                    service: 'USER_SERVICE',
+                    transactionId: orderData.transactionId
+                  });
             }else{
-                return {message: "error creating order", success: false, status: StatusCode.NotFound}
+                throw new Error(" response success is not true.");
             }
-        } catch (error) {
+        } catch (error:any) {
             console.log(error)
-            return {message :"Error occured while creating order", success: false , status: StatusCode.ExpectationFailed }
+            await kafkaConfig.sendMessage('transaction-failed', {
+                ...orderData,
+                service: 'USER_SERVICE',
+                status: 'FAILED',
+                error: error.message
+              });
         }
     }
 
+    async deleteFromPurchaseList(orderData:OrderEventData):Promise<void>{
+        try {
+            const {userId, courseId} = orderData;
+            console.log(orderData)
+            const response = await repository.removeFromPurchaseList(userId,courseId);
+            if(response.success){
+                await kafkaConfig.sendMessage('rollback-completed', {
+                    transactionId: orderData.transactionId,
+                    service: 'USER_SERVICE'
+                  });
+            }else{
+                throw new Error("Error in role back")
+            }
+        } catch (error) {
+            throw new Error("delet course from purchase list failed");
+        }
+    }
+ 
     async checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>{
         try {
             const response = await repository.CourseStatus(data.userId,data.courseId);
@@ -294,7 +337,7 @@ export class UserService implements IUserService{
             console.log('1')
             const otpId = await repository.storeOTP(email,otp);
             console.log('2')
-            return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email, otpId};
+            return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email, otpId, userId:emailExists._id};
         } catch (error) {
             return {message:'error occured in sending OTP.', success:false, status: StatusCode.Conflict}
         }
@@ -302,14 +345,24 @@ export class UserService implements IUserService{
 
     async resendEmailOtp (data: {email: string,otpId:string}) {
         try {
+            console.log('trig resend')
             const {email, otpId} = data;
             let otp = generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            await SendVerificationMail(email,otp)
-            await repository.updateStoredOTP(otpId,otp);
-            return {success:true,status : StatusCode.Accepted};
+
+
+            await SendVerificationMail(email,otp) 
+
+
+            const updateStoredOTP = await repository.updateStoredOTP(otpId,otp);
+            if(!updateStoredOTP){
+                return {success:false, status: StatusCode.NotFound, message:"Time expired. try again later."}
+            }
+            console.log(updateStoredOTP,'stored otp')
+            return {success:true,status : StatusCode.Accepted, message : "OTP has resend"};
         } catch (error) {
-            return {success:false, status: StatusCode.Conflict};
+            console.log(error, "error")
+            return {success:false, status: StatusCode.Conflict, message: "Error occured while resending OTP."};
         }
     }
 

@@ -15,17 +15,19 @@ import {
   AddToCartDTO,
   AddToCartResponse,
   IsInCartResponse,
-  AddToPurchaseListDTO,
-  AddToPurchaseListResponse,
   CheckCourseStatusResponse,
   GetCartItemsDTO,
   GetCartItemsResponse,
   GetCourseStatus,
   IsInCart
 } from "../DTOs/IController.dto";
+import { KafkaMessage } from "kafkajs";
 
+export interface IUserController {  
 
-export interface IUserController {
+  // start(): Promise<void>
+
+  handleMessage(message: KafkaMessage): Promise<void>
   
   signup(call: grpc.ServerUnaryCall<UserRegisterDTO, UserRegisterResponse>, callback: grpc.sendUnaryData<UserRegisterResponse>): Promise<void>;
   
@@ -43,8 +45,6 @@ export interface IUserController {
 
   isInCart(call:grpc.ServerUnaryCall<IsInCart, IsInCartResponse>, callback:grpc.sendUnaryData<IsInCartResponse>):Promise<void>
   
-  addToPurchaseList(call:grpc.ServerUnaryCall<AddToPurchaseListDTO, AddToPurchaseListResponse>, callback:grpc.sendUnaryData<AddToPurchaseListResponse>):Promise<void>
-
   courseStatus(call:grpc.ServerUnaryCall<GetCourseStatus, CheckCourseStatusResponse>, callback:grpc.sendUnaryData<CheckCourseStatusResponse>):Promise<void>
 
   getCartItems(call:grpc.ServerUnaryCall<GetCartItemsDTO, GetCartItemsResponse>, callback:grpc.sendUnaryData<GetCartItemsResponse>):Promise<void>
