@@ -236,9 +236,10 @@ export class UserService implements IUserService{
             const response = await repository.addToPurchaseList(userId , courseId);
             console.log(response)
             if(response.success){
-                await kafkaConfig.sendMessage('success.order.update', {
+                await kafkaConfig.sendMessage('user.response', {
                     success: true,
-                    service: 'USER_SERVICE',
+                    service: 'user-service',
+                    status: 'COMPLETED',
                     transactionId: orderData.transactionId
                   });
             }else{
@@ -246,9 +247,9 @@ export class UserService implements IUserService{
             }
         } catch (error:any) {
             console.log(error)
-            await kafkaConfig.sendMessage('transaction-failed', {
+            await kafkaConfig.sendMessage('user.response', {
                 ...orderData,
-                service: 'USER_SERVICE',
+                service: 'user-service',
                 status: 'FAILED',
                 error: error.message
               });
@@ -263,7 +264,7 @@ export class UserService implements IUserService{
             if(response.success){
                 await kafkaConfig.sendMessage('rollback-completed', {
                     transactionId: orderData.transactionId,
-                    service: 'USER_SERVICE'
+                    service: 'user-service'
                   });
             }else{
                 throw new Error("Error in role back")

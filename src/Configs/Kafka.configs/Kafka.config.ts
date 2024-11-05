@@ -9,7 +9,7 @@ export class KafkaConfig {
 
   private constructor() {
     this.kafka = new Kafka({
-      clientId: 'elearning-service',
+      clientId: 'nodejs-kafka',
       brokers: ['localhost:9092'],
       retry: {
         maxRetryTime: 60000, // 60 seconds
@@ -17,7 +17,7 @@ export class KafkaConfig {
       },
       connectionTimeout: 10000, // 10 seconds
       requestTimeout: 25000, // 25 seconds
-    });
+    }); 
   }
 
   public static getInstance(): KafkaConfig {

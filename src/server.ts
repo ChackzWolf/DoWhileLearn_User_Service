@@ -93,8 +93,8 @@ grpcServer()
 
 
 // Start Kafka consumer
-// controller.start()
-//   .catch(error => console.error('Failed to start kafka course service:', error));
+controller.start()
+  .catch(error => console.error('Failed to start kafka course service:', error));
 
 const PORT = configs.PORT; 
 app.listen(PORT, () => {

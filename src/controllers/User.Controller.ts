@@ -46,13 +46,13 @@ const userService = new UserService()
 export class UserController implements IUserController {
 
     async start(): Promise<void> {
-        const topics =          [
-          'order.process',
-          'order.rollback'
+        const topics =          [ 
+          'user.update', 
+          'user-service.rollback'   
         ]
 
         await kafkaConfig.consumeMessages(
-          'order-service-group',
+          'user-service-group',
           topics,
           this.routeMessage.bind(this)
         );
@@ -61,10 +61,10 @@ export class UserController implements IUserController {
       async routeMessage(_topics:string[], message:KafkaMessage, topic:string):Promise<void>{
         try {
           switch (topic) {
-            case 'order.process':
-                await this.handleMessage(message);
+            case 'user.update':
+                await this.handleMessage(message); 
                 break;
-            case 'order.rollback':
+            case 'user-service.rollback':
                 await this.handleRollback(message);
                 break;
             default:
