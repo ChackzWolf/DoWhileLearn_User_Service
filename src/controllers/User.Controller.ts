@@ -90,9 +90,9 @@ export class UserController implements IUserController {
         // checking order  success or fail
     async handleRollback(message: KafkaMessage): Promise<void> {
         try {
-            const paymentEvent: OrderEventData = JSON.parse(message.value?.toString() || '');
+            const paymentEvent = JSON.parse(message.value?.toString() || '');
             console.log('ROLE BACK KICKED', paymentEvent, 'MESAGe haaha')
-            await userService.deleteFromPurchaseList(paymentEvent);
+            await userService.deleteFromPurchaseList(paymentEvent.data);
         } catch (error) {
             console.error('Error processing message:', error);
         }
