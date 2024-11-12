@@ -301,7 +301,7 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         
         if (!otpEntry) {
           throw new Error('Failed to update or create OTP entry.');
-        }
+        } 
         
         return otpEntry;
       } catch (error) {
@@ -315,6 +315,23 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         const otpEntry = await Otp.findOne({ email, otp, expiresAt: { $gt: new Date() } });
         return otpEntry !== null;
       }
+
+      async getNameById(userId: string): Promise<string> {
+        try {
+            const user = await this.findById(userId);
+            if (!user) {
+                console.log(`User not found with ID: ${userId}`);
+                return "Unknown User";
+            }
+            
+            const name = `${user.firstName} ${user.lastName}`;
+            console.log(name, 'retrieved user name');
+            return name;
+        } catch (error) {
+            console.error('Error fetching user by ID:', error);
+            return "Unknown User";
+        }
+    }
 
 };
 

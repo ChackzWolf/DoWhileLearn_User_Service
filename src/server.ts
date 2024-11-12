@@ -87,6 +87,7 @@ server.addService(userProto.UserService.service, {
     ResendOtpToEmail: controller.resendOtpToEmail,
     VerifyOTPResetPassword : controller.VerifyEnteredOTP,
     ResetPassword: controller.resetPassword,
+    AttachNameToReview: controller.linkNameToReview,
 })
 
 grpcServer()

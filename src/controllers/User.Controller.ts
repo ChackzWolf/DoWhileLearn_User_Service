@@ -272,7 +272,22 @@ export class UserController implements IUserController {
             callback(null, response);
         } catch (error) {
             callback(error as grpc.ServiceError);
-        }
+        } 
     }
+
+    async linkNameToReview(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
+
+        console.log("vann")
+        try {
+            console.log('trig review fetch', call.request);
+            const data = call.request;
+            const response = await userService.attachNameById(data);
+            console.log(response, 'this is the response');
+            const reviewData =response;
+            callback(null, {reviewData});
+        } catch (error) {  
+            
+        }
+    } 
 }
 
