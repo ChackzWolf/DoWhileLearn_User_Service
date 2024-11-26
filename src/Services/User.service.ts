@@ -173,6 +173,19 @@ export class UserService implements IUserService{
         }
     }
 
+    async getUserById(data:{userId:string}){
+        try {
+            const userId = data.userId;
+            const userData = await repository.findByUserId(userId);
+            if(userData){
+                return {success:true, status:StatusCode.OK, message:"Fetched user details successfuly", userData};
+            }
+            return {success:false, status:StatusCode.NotFound, message:"Failed to fetch user details."}
+        } catch (error) {
+            console.log(error, "error from service");
+            return { success:false, message: "An error occured while fetching user details"};
+        }
+    }
 
     async blockUnblock(data: BlockUnblockDTO): Promise<BlockUnblockResponse> {
         try{
@@ -381,7 +394,9 @@ export class UserService implements IUserService{
         }
     }
 
-    async attachNameById(data: any): Promise<any[]> {
+
+
+    async attachReviewById(data: any): Promise<any[]> {
         try {
             
             const updatedData = await Promise.all(
@@ -397,37 +412,25 @@ export class UserService implements IUserService{
             throw new Error('Could not attach names to reviews.');
         }
     }
+
+    async attachMessageById(data: any): Promise<any[]> {
+        try {
+
+            console.log(data, 'ata from service')
+            
+            const updatedData = await Promise.all(
+                data.messages.map(async (msg:any) => {
+                    const userId = msg.userId;
+                    const name = await repository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
+                    return { ...msg, name };
+                })
+            );
+            return updatedData;
+        } catch (error) {
+            console.error('Error while fetching names by user ID:', error);
+            throw new Error('Could not attach names to reviews.');
+        }
+    }
     
 }  
 
-
-    // fetchReviews:async (req:Request,res:Response)=>{
-    //     try {
-    //         const courseId= req.params.courseId;
-    //         const operation ='fetch_review';
-    //         const reviewResult :any= await courseRabbtiMqClient.produce(courseId,operation);
-    //         const reivewWithUser = await Promise.all(
-    //             reviewResult.newReview.map(async(review:any)=>{
-    //                 const userId = review.userId;
-    //                 const userDetails = await userRabbitMqClient.produce(
-    //                     userId,'getUserDetails'
-    //                 );
-    //                 return {
-    //                     ...review,userDetails:userDetails?userDetails: null
-    //                 }
-    //             })
-                
-
-    //         )
-    //         return res.json({
-    //             success:true,message:"Review fetched sucessfully",
-    //             newReview:reivewWithUser
-    //         })
-           
-           
-    //     } catch (error) {
-    //         console.error('Error  fetching review', error);
-    //         return res.json({ error: 'Error  fethiching  review' })
-
-    //     }
-    // }

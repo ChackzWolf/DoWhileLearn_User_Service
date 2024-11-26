@@ -56,7 +56,7 @@ export class UserController implements IUserController {
           topics,
           this.routeMessage.bind(this)
         );
-      }
+      } 
 
       async routeMessage(_topics:string[], message:KafkaMessage, topic:string):Promise<void>{
         try {
@@ -73,8 +73,8 @@ export class UserController implements IUserController {
         } catch (error) {
           
         }
-      }
-
+      } 
+ 
     // checking order  success or fail
     async handleMessage(message: KafkaMessage): Promise<void> {
         try {
@@ -143,7 +143,7 @@ export class UserController implements IUserController {
             callback(null, response);
         } catch (err) {
             callback(err as grpc.ServiceError)
-        }
+        } 
     }
 
     async blockUnblock(call: grpc.ServerUnaryCall<BlockUnblockDTO, BlockUnblockResponse>, callback: grpc.sendUnaryData<BlockUnblockResponse>): Promise<void> {
@@ -154,6 +154,19 @@ export class UserController implements IUserController {
             callback(null, response); // Pass response to callback
         } catch (error) {
             callback(error as grpc.ServiceError); // Pass error to callback
+        }
+    }
+
+    async fetchUserById(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
+        try {
+            const data = call.request;
+            console.log('trig fetchdata by userId form contoller', data);
+            const response = await userService.getUserById(data);
+            console.log(response, 'response from controller (fetchUserById)')
+            callback(null, response);
+        } catch (error) {
+            callback(error as grpc.ServiceError); // Pass error to callback
+
         }
     }
 
@@ -281,10 +294,27 @@ export class UserController implements IUserController {
         try {
             console.log('trig review fetch', call.request);
             const data = call.request;
-            const response = await userService.attachNameById(data);
+            const response = await userService.attachReviewById(data);
             console.log(response, 'this is the response');
             const reviewData =response;
             callback(null, {reviewData});
+        } catch (error) {  
+            
+        }
+    } 
+    async linkNameToMessages(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
+
+        console.log("vann")
+        try {
+            console.log('trig message fetch', call.request);
+            const data = call.request;
+            const response = await userService.attachMessageById(data);
+            console.log(response, 'this is the response');
+            const messageData = {
+                courseId: data.courseId,
+                messages: response,
+            }
+            callback(null, messageData);
         } catch (error) {  
             
         }
