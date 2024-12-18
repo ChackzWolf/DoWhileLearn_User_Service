@@ -431,6 +431,17 @@ export class UserService implements IUserService{
             throw new Error('Could not attach names to reviews.');
         }
     }
+
+    async fetchUsersByIds( data: {studentIds: string[] }){
+        try {
+            const studentIds = data.studentIds;
+            const users = await repository.getUsersByIds(studentIds)
+            return users
+        } catch (error) {
+            console.error('Error while fetching users by ids', error);
+            throw new Error('Could not attach names to reviews.');
+        }
+    }
     
 }  
 

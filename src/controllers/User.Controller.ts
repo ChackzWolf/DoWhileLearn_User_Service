@@ -48,7 +48,7 @@ export class UserController implements IUserController {
     async start(): Promise<void> {
         const topics =          [ 
           'user.update', 
-          'user-service.rollback'   
+          'user-service.rollback'       
         ]
 
         await kafkaConfig.consumeMessages(
@@ -319,5 +319,17 @@ export class UserController implements IUserController {
             
         }
     } 
+
+    async fetchUsersByIds(call: grpc.ServerUnaryCall<any,any>,callback: grpc.sendUnaryData<any>): Promise<void> {
+        try {
+            console.log('triggered fetch users by ids', call.request);
+            const data = call.request;
+            const response =  await userService.fetchUsersByIds(data);
+            console.log(response)
+            callback(null, {users:response})
+        } catch (error) {
+            
+        }
+    }
 }
 

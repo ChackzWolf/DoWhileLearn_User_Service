@@ -90,6 +90,7 @@ server.addService(userProto.UserService.service, {
     AttachNameToReview: controller.linkNameToReview,
     AttachNameToMessages: controller.linkNameToMessages,
     GetUserDetails: controller.fetchUserById,
+    FetchUsersByIds: controller.fetchUsersByIds
 })
 
 grpcServer()

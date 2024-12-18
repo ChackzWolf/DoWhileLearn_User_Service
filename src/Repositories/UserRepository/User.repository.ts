@@ -29,6 +29,15 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         }
     }
 
+    async getUsersByIds(studentIds: string[]): Promise<IUser[]> {
+        try {
+            return await UserModel.find({ _id: { $in: studentIds } }); // Assuming `User` is your Mongoose model
+        }   catch (error:any) {
+            console.error('Error in getUsersByIds:', error.message);
+            throw new Error('Failed to fetch users by IDs');
+        }
+    }
+
     async findByEmail(email: string): Promise<IUser | null> {
         try {
             // const uuser = await UserModel.findOne({ email }).exec(); //.exec() method ensures that the query returns a promise.
