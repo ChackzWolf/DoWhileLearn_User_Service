@@ -14,6 +14,10 @@ export interface IUser extends Document {
     purchasedCourses: mongoose.Types.ObjectId[]; // Array of ObjectId values
     cart:mongoose.Types.ObjectId[]; // Array of ObjectId values
     wishlist:mongoose.Types.ObjectId[]; // Array of ObjectId values
+    profilePicture:string,
+    phoneNumber:string,
+    bio:string,
+    userId?:string
     comparePassword: (password: string) => Promise<boolean>;
     SignAccessToken: () => string;
     SignRefreshToken: () => string;

@@ -10,6 +10,7 @@ import {
         } from '../DTOs/IRepository.dto';
 
 export interface IUserRepository {
+  updateUser( dataToUpdate: Partial<IUser>):Promise<IUser>;
   findByEmail(email: string): Promise<IUser | null>;
   createTempUser(tempUserData: Partial<ITempUser>): Promise<ITempUser | null>;
   createUser(userData: CreateUserDTO): Promise<IUser | null>;

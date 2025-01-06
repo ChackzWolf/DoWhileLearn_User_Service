@@ -58,7 +58,7 @@ export const controller = new UserController()
 const grpcServer = () => {
     server.bindAsync(
         `0.0.0.0:${configs.USER_GRPC_PORT}`,
-        grpc.ServerCredentials.createInsecure(),
+        grpc.ServerCredentials.createInsecure(), 
         (err,port) => {
             if(err){
                 console.log(err, "Error happened grpc user service.");
@@ -80,9 +80,9 @@ server.addService(userProto.UserService.service, {
     ToggleBlock: controller.blockUnblock,
     AddToCart: controller.addToCart,
     IsInCart: controller.isInCart, 
-    CourseStatus: controller.courseStatus,
+    CourseStatus: controller.courseStatus, 
     GetCartItemsIds: controller.getCartItems,
-    isBlocked: controller.isBlocked,
+    isBlocked: controller.isBlocked, 
     SendOtpToEmail: controller.sendOtpToEmail ,
     ResendOtpToEmail: controller.resendOtpToEmail,
     VerifyOTPResetPassword : controller.VerifyEnteredOTP,
@@ -90,7 +90,8 @@ server.addService(userProto.UserService.service, {
     AttachNameToReview: controller.linkNameToReview,
     AttachNameToMessages: controller.linkNameToMessages,
     GetUserDetails: controller.fetchUserById,
-    FetchUsersByIds: controller.fetchUsersByIds
+    FetchUsersByIds: controller.fetchUsersByIds,
+    UpdateUserDetails: controller.updateUserDetails 
 })
 
 grpcServer()

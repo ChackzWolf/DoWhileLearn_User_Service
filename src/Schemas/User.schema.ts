@@ -28,6 +28,15 @@ const UserSchema: Schema<IUser> = new Schema({
         type: String,
         required: true
     },
+    phoneNumber: {
+        type: String,
+    },
+    profilePicture: {
+        type: String,
+    },
+    bio: {
+        type: String,
+    },
     isblocked: {
         type: Boolean,
         default: false

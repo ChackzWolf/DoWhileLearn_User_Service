@@ -153,7 +153,6 @@ export class UserService implements IUserService{
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
                     const userId = userData._id;
-
                     const isBlocked = await repository.isBlocked(userId)
                     if(isBlocked){
                         return {success: false, message : 'isBlocked'}
@@ -410,6 +409,20 @@ export class UserService implements IUserService{
         } catch (error) {
             console.error('Error while fetching names by user ID:', error);
             throw new Error('Could not attach names to reviews.');
+        }
+    }
+
+    async updateUserDetails(data:{formData:IUser}):Promise <{success:boolean, status:number, message:string}>{
+        try {
+            const datatoUpdate = data.formData;
+            const response = await repository.updateUser(datatoUpdate);
+            console.log(response);
+            if(!response){
+                return {success:false, status:StatusCode.Conflict, message:"No response. Error occured while updating tutor details."}
+            }
+            return {success: true, status:StatusCode.Accepted, message: "Tutor details updated successfuly."}
+        } catch (error) {
+            return {success:false, status:StatusCode.Conflict, message:"Error occured while updating tutor details."}
         }
     }
 

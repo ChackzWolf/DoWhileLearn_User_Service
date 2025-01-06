@@ -16,7 +16,7 @@ import { StatusCode } from "../../Interfaces/Enums/Enums";
 class userRepository extends BaseRepository<IUser> implements IUserRepository {
 
     constructor() {
-        super(UserModel); // Pass the UserModel to BaseRepository
+        super(UserModel);
     }
 
     async findByUserId(userId: string) {
@@ -67,6 +67,35 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
     }
 
 
+    async updateUser( dataToUpdate: Partial<IUser>):Promise<IUser> {
+        try {
+            const updatedUser = await UserModel.findByIdAndUpdate(
+                dataToUpdate._id,
+                {
+                    $set: {
+                        firstName: dataToUpdate.firstName,
+                        lastName: dataToUpdate.lastName,
+                        email: dataToUpdate.email,
+                        phoneNumber: dataToUpdate.phoneNumber,
+                        bio: dataToUpdate.bio,
+                        profilePicture: dataToUpdate.profilePicture,
+                    },
+                },
+                { new: true, runValidators: true } // Returns updated document & applies schema validations
+            );
+    
+            if (!updatedUser) {
+                throw new Error('user not found');
+            }
+    
+            return updatedUser;
+        } catch (error) {
+            console.error("Error updating tutor:", error);
+            throw error;
+        }
+    }
+
+
     async createUser(userData: CreateUserDTO): Promise<IUser | null> {
         try {
             const { firstName, lastName, email, password } = userData;
@@ -75,7 +104,10 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
                 lastName,
                 email,
                 password,
-                // Ensure all fields are set, including defaults
+                //defaults
+                profilePicture:"",
+                phoneNumber:"",
+                bio:"",
                 isblocked: false,
                 purchasedCourses: [],
                 cart: [],

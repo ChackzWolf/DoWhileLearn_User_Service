@@ -181,6 +181,18 @@ export class UserController implements IUserController {
         }
     }
 
+    async updateUserDetails(call: grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>): Promise<void>{
+        try {
+            console.log('triggered user details update.', call.request)
+            const data = call.request;
+            const response = await userService.updateUserDetails(data);
+            console.log(response, "response from controller.");
+            callback(null, response);
+        } catch (error) {
+            throw new Error ("error from controller fetching tutor details")
+        } 
+    } 
+
     async addToCart(call: grpc.ServerUnaryCall<AddToCartDTO, AddToCartResponse>, callback: grpc.sendUnaryData<AddToCartResponse>): Promise<void> {
         try {
             const data = call.request
