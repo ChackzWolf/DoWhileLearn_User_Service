@@ -1,5 +1,5 @@
 import UserModel, { TempUser, Otp } from "../../Schemas/User.schema";
-import { IUser, ITempUser, UserCart } from "../../Interfaces/Models/IUser";
+import { IUser, ITempUser, UserCart, OTPInterface } from "../../Interfaces/Models/IUser";
 import { IUserRepository } from "../../Interfaces/IRepositories/IRepository.interface";
 import {
     CreateUserDTO,
@@ -9,22 +9,29 @@ import {
     CartItem,
 } from '../../Interfaces/DTOs/IRepository.dto';
 import { BaseRepository } from "../BaseRepository/Base.repository";
-import { ObjectId } from "mongodb";
+// import { ObjectId } from 'mongoose';
+import { ObjectId } from 'mongodb';
 import { StatusCode } from "../../Interfaces/Enums/Enums";
 
 
-class userRepository extends BaseRepository<IUser> implements IUserRepository {
+class UserRepository extends BaseRepository<IUser> implements IUserRepository {
 
     constructor() {
         super(UserModel);
     }
 
-    async findByUserId(userId: string) {
+    async findByUserId(userId: string): Promise<IUser | null> {
         try {
-            const user = await this.findById(userId);
+            const user: IUser | null = await this.findById(userId);
+
+            if (!user) {
+                console.error(`User not found with id: ${userId}`);
+                return null;
+            }
+
             return user;
         } catch (error) {
-            console.error(`Error finding user by email: ${error}`);
+            console.error(`Error finding user by id: ${error}`);
             return null;
         }
     }
@@ -324,7 +331,7 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
         }
     }
 
-    async storeOTP(email: string, otp: string) {
+    async storeOTP(email: string, otp: string): Promise<ObjectId> {
         try {
             const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
@@ -336,13 +343,13 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
             );
 
             console.log(otpEntry, 'otpentry');
-            return otpEntry._id;
+            return otpEntry._id as ObjectId;
         } catch (error: unknown) {
             throw new Error("User not found");
         }
     }
 
-    async updateStoredOTP(otpId: string, otp: string) {
+    async updateStoredOTP(otpId: string, otp: string):Promise<OTPInterface> {
         try {
             const otpEntry = await Otp.findOneAndUpdate(
                 { _id: otpId }, // Find by otpId
@@ -362,7 +369,7 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
     }
 
 
-    async verifyOTP(email: string, otp: string) {
+    async verifyOTP(email: string, otp: string):Promise<boolean> {
         const otpEntry = await Otp.findOne({ email, otp, expiresAt: { $gt: new Date() } });
         return otpEntry !== null;
     }
@@ -386,4 +393,4 @@ class userRepository extends BaseRepository<IUser> implements IUserRepository {
 
 };
 
-export default userRepository 
+export default UserRepository 

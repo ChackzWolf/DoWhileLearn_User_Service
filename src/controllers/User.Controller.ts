@@ -40,10 +40,15 @@ export interface OrderEventData {
 // import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
 import { KafkaMessage } from "kafkajs";
 import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
-const userService = new UserService()
+// const userService = new UserService()
 
 
 export class UserController implements IUserController {
+    private userService: UserService;
+
+    constructor(userService: UserService) {
+        this.userService = userService;
+    }
 
     async start(): Promise<void> {
         const topics =          [ 
@@ -80,7 +85,7 @@ export class UserController implements IUserController {
         try {
             const paymentEvent: OrderEventData = JSON.parse(message.value?.toString() || '');
             console.log('START', paymentEvent, 'MESAGe haaha')
-            await userService.addToPurchaseList(paymentEvent)
+            await this.userService.addToPurchaseList(paymentEvent)
         } catch (error) {
             console.error('Error processing message:', error);
         }
@@ -92,7 +97,7 @@ export class UserController implements IUserController {
         try {
             const paymentEvent = JSON.parse(message.value?.toString() || '');
             console.log('ROLE BACK KICKED', paymentEvent, 'MESAGe haaha')
-            await userService.deleteFromPurchaseList(paymentEvent.data);
+            await this.userService.deleteFromPurchaseList(paymentEvent.data);
         } catch (error) {
             console.error('Error processing message:', error);
         }
@@ -101,7 +106,7 @@ export class UserController implements IUserController {
     async signup(call: grpc.ServerUnaryCall<UserRegisterDTO, UserRegisterResponse>, callback: grpc.sendUnaryData<UserRegisterResponse>): Promise<void> {
         try {
             const userData = call.request;
-            const response = await userService.userRegister(userData);
+            const response = await this.userService.userRegister(userData);
             if (response.success) {
                 callback(null, { success: true, msg: "OTP sent", tempId: response.tempId, email: response.email });
             } else {
@@ -116,7 +121,7 @@ export class UserController implements IUserController {
 
         try {
             const data = call.request;
-            const response = await userService.VerifyOtp(data);
+            const response = await this.userService.VerifyOtp(data);
             callback(null, response);
         } catch (err) {
             callback(err as grpc.ServiceError)
@@ -126,7 +131,8 @@ export class UserController implements IUserController {
     async resendOtp(call: grpc.ServerUnaryCall<ResendOtpDTO, ResendOtpResponse>, callback: grpc.sendUnaryData<ResendOtpResponse>): Promise<void> {
         try {
             const data = call.request;
-            const response = await userService.ResendOTP(data);
+            const response = await this.userService.ResendOTP(data);
+            
             callback(null, response);
         } catch (err) {
             callback(err as grpc.ServiceError)
@@ -135,9 +141,9 @@ export class UserController implements IUserController {
 
     async userLogin(call: grpc.ServerUnaryCall<UserLoginDTO, UserLoginResponse>, callback: grpc.sendUnaryData<UserLoginResponse>): Promise<void> {
         try {
-            console.log('trig')
+            console.log('trig', call.request)
             const data = call.request;
-            const response = await userService.userLogin(data);
+            const response = await this.userService.userLogin(data);
             console.log(response, 'response from controller ')
 
             callback(null, response);
@@ -150,7 +156,7 @@ export class UserController implements IUserController {
         try {
             const userId = call.request; // Extract userId from request
             console.log(userId, 'controller')
-            const response = await userService.blockUnblock(userId); // Call your service
+            const response = await this.userService.blockUnblock(userId); // Call your service
             callback(null, response); // Pass response to callback
         } catch (error) {
             callback(error as grpc.ServiceError); // Pass error to callback
@@ -161,7 +167,7 @@ export class UserController implements IUserController {
         try {
             const data = call.request;
             console.log('trig fetchdata by userId form contoller', data);
-            const response = await userService.getUserById(data);
+            const response = await this.userService.getUserById(data);
             console.log(response, 'response from controller (fetchUserById)')
             callback(null, response);
         } catch (error) {
@@ -173,7 +179,7 @@ export class UserController implements IUserController {
     async fetchStudents(_call: grpc.ServerUnaryCall<null, FetchStudentsResponse>, callback: grpc.sendUnaryData<FetchStudentsResponse>): Promise<void> {
         try {
             console.log('triggerd')
-            const response = await userService.fetchStudents();
+            const response = await this.userService.fetchStudents();
             console.log(response, 'response from controller')
             callback(null, response);
         } catch (err) {
@@ -185,7 +191,7 @@ export class UserController implements IUserController {
         try {
             console.log('triggered user details update.', call.request)
             const data = call.request;
-            const response = await userService.updateUserDetails(data);
+            const response = await this.userService.updateUserDetails(data);
             console.log(response, "response from controller.");
             callback(null, response);
         } catch (error) {
@@ -196,7 +202,7 @@ export class UserController implements IUserController {
     async addToCart(call: grpc.ServerUnaryCall<AddToCartDTO, AddToCartResponse>, callback: grpc.sendUnaryData<AddToCartResponse>): Promise<void> {
         try {
             const data = call.request
-            const response = await userService.addToCart(data)
+            const response = await this.userService.addToCart(data)
             console.log(response, 'response from controller');
             callback(null, response)
         } catch (err) {
@@ -207,7 +213,7 @@ export class UserController implements IUserController {
     async isInCart(call: grpc.ServerUnaryCall<IsInCart, IsInCartResponse>, callback: grpc.sendUnaryData<IsInCartResponse>): Promise<void> {
         try {
             const data = call.request;
-            const response = await userService.isInCart(data);
+            const response = await this.userService.isInCart(data);
             callback(null, response);
         } catch (err) {
 
@@ -219,7 +225,7 @@ export class UserController implements IUserController {
     async courseStatus(call: grpc.ServerUnaryCall<GetCourseStatus, CheckCourseStatusResponse>, callback: grpc.sendUnaryData<CheckCourseStatusResponse>): Promise<void> {
         try {
             const data = call.request;
-            const response = await userService.checkCourseStatus(data)
+            const response = await this.userService.checkCourseStatus(data)
             console.log(response, 'response form checking course status')
             callback(null, response)
         } catch (error) {
@@ -232,7 +238,7 @@ export class UserController implements IUserController {
             console.log('trug')
             const data = call.request;
             console.log(data, 'data form controller')
-            const response = await userService.getCartItems(data);
+            const response = await this.userService.getCartItems(data);
             console.log(response)
             callback(null, { success: response.success, courseIds: response.cart })
         } catch (error) {
@@ -245,7 +251,7 @@ export class UserController implements IUserController {
             console.log('isBlocked trig');
             const data = call.request
             console.log(data);
-            const response = await userService.checkIsBlocked(data);
+            const response = await this.userService.checkIsBlocked(data);
             console.log(response, 'response from controller')
             callback(null, { isBlocked: response.isBlocked })
         } catch (error) {
@@ -257,7 +263,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig respassword controller')
             const data = call.request;
-            const response = await userService.resetPassword(data)
+            const response = await this.userService.resetPassword(data)
             callback(null, response)
         } catch (error) {
             callback(error as grpc.ServiceError);
@@ -268,7 +274,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig to otp email send controller ', call.request)
             const data = call.request;
-            const response = await userService.sendEmailOtp(data);
+            const response = await this.userService.sendEmailOtp(data);
             console.log('reseponse from controller', response);
             callback(null, response);
         } catch (error) {
@@ -280,7 +286,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig to resend otp email send controller ', call.request);
             const data = call.request;
-            const response = await userService.resendEmailOtp(data);
+            const response = await this.userService.resendEmailOtp(data);
             console.log('reseponse from controller', response);
             callback(null, response);
         } catch (error) {
@@ -292,7 +298,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig', call.request);
             const data = call.request;
-            const response = await userService.resetPasswordVerifyOTP(data);
+            const response = await this.userService.resetPasswordVerifyOTP(data);
             console.log(response, 'response from controller')
             callback(null, response);
         } catch (error) {
@@ -306,7 +312,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig review fetch', call.request);
             const data = call.request;
-            const response = await userService.attachReviewById(data);
+            const response = await this.userService.attachReviewById(data);
             console.log(response, 'this is the response');
             const reviewData =response;
             callback(null, {reviewData});
@@ -320,7 +326,7 @@ export class UserController implements IUserController {
         try {
             console.log('trig message fetch', call.request);
             const data = call.request;
-            const response = await userService.attachMessageById(data);
+            const response = await this.userService.attachMessageById(data);
             console.log(response, 'this is the response');
             const messageData = {
                 courseId: data.courseId,
@@ -336,7 +342,7 @@ export class UserController implements IUserController {
         try {
             console.log('triggered fetch users by ids', call.request);
             const data = call.request;
-            const response =  await userService.fetchUsersByIds(data);
+            const response =  await this.userService.fetchUsersByIds(data);
             console.log(response)
             callback(null, {users:response})
         } catch (error) {

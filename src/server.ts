@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { UserController }  from "./Controllers/User.controller";
+import { UserController }  from "./Controllers/User.Controller";
 import { connectDB } from "./Configs/DB.configs/MongoDB";
 import morgan from 'morgan';
 import winston from 'winston';
@@ -10,6 +10,10 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 import fs from 'fs'
 import express from "express"
 import { configs } from "./Configs/ENV_configs/ENV.configs";
+import UserRepository from "./Repositories/UserRepository/User.repository";
+import { EmailService } from "./Utils/Send.email";
+import { OTPService } from "./Utils/Generate.OTP";
+import { UserService } from "./Services/User.service";
 const app = express();
 
 
@@ -54,7 +58,13 @@ const packatgeDefinition = protoLoader.loadSync(
 const userProto = grpc.loadPackageDefinition(packatgeDefinition)as any;
 
 const server =  new grpc.Server()
-export const controller = new UserController()
+
+const userRepository = new UserRepository();
+const emailService = new EmailService();
+const otpService = new OTPService();
+const userService = new UserService(userRepository, emailService, otpService);
+const userController = new UserController(userService);
+
 const grpcServer = () => {
     server.bindAsync(
         `0.0.0.0:${configs.USER_GRPC_PORT}`,
@@ -72,33 +82,34 @@ const grpcServer = () => {
  
 
 server.addService(userProto.UserService.service, {
-    Register: controller.signup,
-    VerifyOTP: controller.verifyOtp,
-    ResendOTP: controller.resendOtp,
-    UserLogin: controller.userLogin,
-    FetchStudentData: controller.fetchStudents,
-    ToggleBlock: controller.blockUnblock,
-    AddToCart: controller.addToCart,
-    IsInCart: controller.isInCart, 
-    CourseStatus: controller.courseStatus, 
-    GetCartItemsIds: controller.getCartItems,
-    isBlocked: controller.isBlocked, 
-    SendOtpToEmail: controller.sendOtpToEmail ,
-    ResendOtpToEmail: controller.resendOtpToEmail,
-    VerifyOTPResetPassword : controller.VerifyEnteredOTP,
-    ResetPassword: controller.resetPassword,
-    AttachNameToReview: controller.linkNameToReview,
-    AttachNameToMessages: controller.linkNameToMessages,
-    GetUserDetails: controller.fetchUserById,
-    FetchUsersByIds: controller.fetchUsersByIds,
-    UpdateUserDetails: controller.updateUserDetails 
+
+    Register: userController.signup.bind(userController),
+    VerifyOTP: userController.verifyOtp.bind(userController),
+    ResendOTP: userController.resendOtp.bind(userController),
+    UserLogin: userController.userLogin.bind(userController),
+    FetchStudentData: userController.fetchStudents.bind(userController),
+    ToggleBlock: userController.blockUnblock.bind(userController),
+    AddToCart: userController.addToCart.bind(userController),
+    IsInCart: userController.isInCart.bind(userController),
+    CourseStatus: userController.courseStatus.bind(userController),
+    GetCartItemsIds: userController.getCartItems.bind(userController),
+    isBlocked: userController.isBlocked.bind(userController),
+    SendOtpToEmail: userController.sendOtpToEmail .bind(userController),
+    ResendOtpToEmail: userController.resendOtpToEmail.bind(userController),
+    VerifyOTPResetPassword : userController.VerifyEnteredOTP.bind(userController),
+    ResetPassword: userController.resetPassword.bind(userController),
+    AttachNameToReview: userController.linkNameToReview.bind(userController),
+    AttachNameToMessages: userController.linkNameToMessages.bind(userController),
+    GetUserDetails: userController.fetchUserById.bind(userController),
+    FetchUsersByIds: userController.fetchUsersByIds.bind(userController),
+    UpdateUserDetails: userController.updateUserDetails.bind(userController),
 })
 
 grpcServer()
 
 
 // Start Kafka consumer
-controller.start()
+userController.start()
   .catch(error => console.error('Failed to start kafka course service:', error));
 
 const PORT = configs.PORT; 

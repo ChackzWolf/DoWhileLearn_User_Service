@@ -1,9 +1,6 @@
-import userRepository from "../Repositories/UserRepository/User.repository";
 import  { TempUser } from "../Schemas/User.schema";
 import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
-import { generateOTP } from "../Utils/Generate.OTP";
-import { SendVerificationMail } from "../Utils/Send.email";
 import { IUserService } from "../Interfaces/IService/IService.interface";
 import createToken from "../Utils/Activation.token";
 import { StatusCode } from "../Interfaces/Enums/Enums";
@@ -21,6 +18,9 @@ import {
     FetchStudentsResponse
   } from '../Interfaces/DTOs/IService.dto';
   import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
+import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interface";
+import { IEmailService } from "../Interfaces/IUtils/IEmailService";
+import { IOTPService } from "../Interfaces/IUtils/IOTPService";
 
 
 dotenv.config();
@@ -40,11 +40,21 @@ export interface OrderEventData {
   }
 
 
-const repository = new userRepository()
-
  
 
 export class UserService implements IUserService{
+
+
+    private userRepository: IUserRepository;
+    private emailService: IEmailService;
+    private otpService: IOTPService;
+
+    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService) {
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+        this.otpService = otpService;
+    }
+    
     
     async userRegister(userData: UserRegisterDTO): Promise<UserRegisterResponse> {
         try{
@@ -53,20 +63,20 @@ export class UserService implements IUserService{
             if(email === undefined){
                 throw new Error("Email is undefined");
             } 
-            const emailExists = await repository.findByEmail(email);
+            const emailExists = await this.userRepository.findByEmail(email);
             
             if(emailExists){
                 console.log('email exists triggered')
                 return {success: false, message: "Email already exists" };
             }
 
-            let otp = generateOTP();
+            let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            await SendVerificationMail(email,otp)
+            await this.emailService.sendVerificationMail(email,otp)
 
             console.log('Email send')
 
-            const tempUserData: ITempUser | null = await repository.createTempUser({
+            const tempUserData: ITempUser | null = await this.userRepository.createTempUser({
                 otp,
                 userData: userData as IUser, 
             });    
@@ -97,7 +107,7 @@ export class UserService implements IUserService{
                 return { success: false, message: "You have entered invalid OTP." };
             }
             
-            const createdUser: IUser | null = await repository.createUser(tempUser.userData);
+            const createdUser: IUser | null = await this.userRepository.createUser(tempUser.userData);
             
             if (!createdUser) {
                 throw new Error("Failed to create user.");
@@ -127,7 +137,7 @@ export class UserService implements IUserService{
     async ResendOTP(passedData: ResendOtpDTO): Promise<ResendOtpResponse> {
         try{
             const {email,tempId} = passedData;
-            let newOTP = generateOTP();
+            let newOTP = this.otpService.generateOTP();
             console.log(`OTP : [   ${newOTP}   ]`);
 
             const updatedTempUser = await TempUser.findByIdAndUpdate(tempId,{otp:newOTP},{new:true})
@@ -136,7 +146,7 @@ export class UserService implements IUserService{
                 console.log('failed to send otp')
                 return { success: false, message: "Register time has expaired. Try registering again"}
             }else{
-                await SendVerificationMail(email,newOTP)
+                await this.emailService.sendVerificationMail(email,newOTP)
 
                 return {success: true, message:"OTP has been resent"};
             } 
@@ -147,13 +157,14 @@ export class UserService implements IUserService{
     
     async userLogin(loginData: UserLoginDTO): Promise<UserLoginResponse> {
         try {
+            console.log(loginData, 'user login')
             const {email, password} = loginData;
-            const userData = await repository.findByEmail(email);
+            const userData = await this.userRepository.findByEmail(email);
             if(userData){
                 const checkPassword = await userData.comparePassword(password)
                 if(checkPassword){
                     const userId = userData._id;
-                    const isBlocked = await repository.isBlocked(userId)
+                    const isBlocked = await this.userRepository.isBlocked(userId)
                     if(isBlocked){
                         return {success: false, message : 'isBlocked'}
                     }
@@ -175,7 +186,7 @@ export class UserService implements IUserService{
     async getUserById(data:{userId:string}){
         try {
             const userId = data.userId;
-            const userData = await repository.findByUserId(userId);
+            const userData = await this.userRepository.findByUserId(userId);
             if(userData){
                 return {success:true, status:StatusCode.OK, message:"Fetched user details successfuly", userData};
             }
@@ -189,7 +200,7 @@ export class UserService implements IUserService{
     async blockUnblock(data: BlockUnblockDTO): Promise<BlockUnblockResponse> {
         try{
             console.log(data.userId,'from use case')
-            const response = await repository.blockUnblock(data.userId);
+            const response = await this.userRepository.blockUnblock(data.userId);
             if(!response.success){
                 return {success:false, message:"Error finding user."}
             }
@@ -202,7 +213,7 @@ export class UserService implements IUserService{
 
     async fetchStudents(): Promise<FetchStudentsResponse> {
         try {
-            const students = await repository.getAllUsers();
+            const students = await this.userRepository.getAllUsers();
             console.log(students, 'students')
             if (students) {
                 return { success: true, students };
@@ -217,7 +228,7 @@ export class UserService implements IUserService{
     async addToCart(data:{userId:string,courseId:string}):Promise<{message?:string, success:boolean, inCart?:boolean}>{
         try {
             console.log(data, 'data form use ncase')
-           const response = await repository.toggleCourseInCart(data.userId,data.courseId)
+           const response = await this.userRepository.toggleCourseInCart(data.userId,data.courseId)
            if(response.success){
                 return {success:true, message: "course added to cart", inCart:response.inCart};
            }else{
@@ -233,7 +244,7 @@ export class UserService implements IUserService{
     async isInCart(data:{userId:string,courseId:string}):Promise<{inCart?:boolean,success:boolean}>{
         try {
             console.log('trig')
-            const response = await repository.CheckIfInCart(data.userId,data.courseId);
+            const response = await this.userRepository.CheckIfInCart(data.userId,data.courseId);
             console.log(response,'response from servcie')
             return {inCart:response.inCart,success:true};
         } catch (err) {
@@ -245,7 +256,7 @@ export class UserService implements IUserService{
         try {
             console.log(orderData, "order data form addpurchase list service");
             const { userId, courseId} = orderData;
-            const response = await repository.addToPurchaseList(userId , courseId);
+            const response = await this.userRepository.addToPurchaseList(userId , courseId);
             console.log(response)
             if(response.success){
                 await kafkaConfig.sendMessage('user.response', {
@@ -272,7 +283,7 @@ export class UserService implements IUserService{
         try {
             const {userId, courseId} = orderData;
             console.log(orderData)
-            const response = await repository.removeFromPurchaseList(userId,courseId);
+            const response = await this.userRepository.removeFromPurchaseList(userId,courseId);
             if(response.success){
                 await kafkaConfig.sendMessage('rollback-completed', {
                     transactionId: orderData.transactionId,
@@ -288,7 +299,7 @@ export class UserService implements IUserService{
  
     async checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>{
         try {
-            const response = await repository.CourseStatus(data.userId,data.courseId);
+            const response = await this.userRepository.CourseStatus(data.userId,data.courseId);
             console.log(response)
             return {inCart:response.inCart, inPurchase:response.inPurchase, inWishlist:response.inWishlist};
         } catch (error) {
@@ -301,7 +312,7 @@ export class UserService implements IUserService{
 
     async getCartItems(data: { userId: string }): Promise<{ cart?: CartItem[], success: boolean }> {
         try {
-          const response = await repository.getCartItems(data.userId);
+          const response = await this.userRepository.getCartItems(data.userId);
             console.log(response, 'response in userCase')
           if (!response) {
             return { success: false }; // Return false if no items are found or the user doesn't exist
@@ -318,7 +329,7 @@ export class UserService implements IUserService{
 
     async checkIsBlocked(data: {userId:string}): Promise<{isBlocked:boolean | undefined}> {
         try {
-            const response = await repository.isBlocked(data.userId);
+            const response = await this.userRepository.isBlocked(data.userId);
 
             return {isBlocked : response }
         } catch (error) {
@@ -329,7 +340,7 @@ export class UserService implements IUserService{
     async resetPassword(data: {userId:string, password:string}){
         try {
             const {userId,password} = data;
-            const response = await repository.passwordChange(userId, password);
+            const response = await this.userRepository.passwordChange(userId, password);
             return response
         } catch (error) {
             return {message:'error occured in service while changing password', success:false, status: StatusCode.NotModified}
@@ -339,16 +350,16 @@ export class UserService implements IUserService{
     async sendEmailOtp (data: {email:string}){
         try {
             const email = data.email; 
-            const emailExists = await repository.findByEmail(email);
+            const emailExists = await this.userRepository.findByEmail(email);
             if(!emailExists){
                 console.log("email not found triggered")
                 return {success: false, message: "Email not found", status:StatusCode.NotFound };
             }
-            let otp = generateOTP();
+            let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            await SendVerificationMail(email,otp)
+            await this.emailService.sendVerificationMail(email,otp)
             console.log('1')
-            const otpId = await repository.storeOTP(email,otp);
+            const otpId = await this.userRepository.storeOTP(email,otp);
             console.log('2')
             return {message: 'An OTP has send to your email address.', success:true, status: StatusCode.Found,email, otpId, userId:emailExists._id};
         } catch (error) {
@@ -360,14 +371,14 @@ export class UserService implements IUserService{
         try {
             console.log('trig resend')
             const {email, otpId} = data;
-            let otp = generateOTP();
+            let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
 
 
-            await SendVerificationMail(email,otp) 
+            await this.emailService.sendVerificationMail(email,otp) 
 
 
-            const updateStoredOTP = await repository.updateStoredOTP(otpId,otp);
+            const updateStoredOTP = await this.userRepository.updateStoredOTP(otpId,otp);
             if(!updateStoredOTP){
                 return {success:false, status: StatusCode.NotFound, message:"Time expired. try again later."}
             }
@@ -382,8 +393,8 @@ export class UserService implements IUserService{
     async resetPasswordVerifyOTP(data: {email:string,enteredOTP:string}){
         try { 
             const {email,enteredOTP} = data;
-            const response = await repository.verifyOTP(email,enteredOTP)
-            const user = await repository.findByEmail(email);
+            const response = await this.userRepository.verifyOTP(email,enteredOTP)
+            const user = await this.userRepository.findByEmail(email);
             if(response && user){
                 return {success:true, message: 'Email has been verified successfuly.',status:StatusCode.Accepted,email,userId:user._id}
             }
@@ -401,7 +412,7 @@ export class UserService implements IUserService{
             const updatedData = await Promise.all(
                 data.reviewData.map(async (review:any) => {
                     const userId = review.userId;
-                    const name = await repository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
+                    const name = await this.userRepository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
                     return { ...review, name };
                 })
             );
@@ -415,7 +426,7 @@ export class UserService implements IUserService{
     async updateUserDetails(data:{formData:IUser}):Promise <{success:boolean, status:number, message:string}>{
         try {
             const datatoUpdate = data.formData;
-            const response = await repository.updateUser(datatoUpdate);
+            const response = await this.userRepository.updateUser(datatoUpdate);
             console.log(response);
             if(!response){
                 return {success:false, status:StatusCode.Conflict, message:"No response. Error occured while updating tutor details."}
@@ -434,7 +445,7 @@ export class UserService implements IUserService{
             const updatedData = await Promise.all(
                 data.messages.map(async (msg:any) => {
                     const userId = msg.userId;
-                    const name = await repository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
+                    const name = await this.userRepository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
                     return { ...msg, name };
                 })
             );
@@ -448,7 +459,7 @@ export class UserService implements IUserService{
     async fetchUsersByIds( data: {studentIds: string[] }){
         try {
             const studentIds = data.studentIds;
-            const users = await repository.getUsersByIds(studentIds)
+            const users = await this.userRepository.getUsersByIds(studentIds)
             return users
         } catch (error) {
             console.error('Error while fetching users by ids', error);

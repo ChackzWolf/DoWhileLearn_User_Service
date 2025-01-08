@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IUser, ITempUser } from "../Interfaces/Models/IUser";
+import { IUser, ITempUser, OTPInterface } from "../Interfaces/Models/IUser";
 import { configs } from "../Configs/ENV_configs/ENV.configs";
 
 
@@ -79,7 +79,7 @@ const TempUserShcema: Schema <ITempUser> = new Schema({
 })
 
 
-const otpSchema = new Schema({
+const otpSchema:Schema<OTPInterface> = new Schema({
     email: { type: String, required: true, unique: true },
     otp: { type: String, required: true },
     expiresAt: { type: Date, required: true }
@@ -141,7 +141,7 @@ UserSchema.methods.comparePassword = async function (enteredPassword: string) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export const Otp = mongoose.model("setOTP",otpSchema)
+export const Otp = mongoose.model<OTPInterface>("setOTP",otpSchema)
 export const TempUser = mongoose.model<ITempUser>("TempUserData",TempUserShcema)
 const UserModel = mongoose.model<IUser>("User", UserSchema);
 
