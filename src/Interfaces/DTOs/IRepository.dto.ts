@@ -8,6 +8,7 @@ export interface CreateUserDTO {
   lastName: string;
   email: string;
   password: string;
+  photoUrl?:string;
 }
 
 

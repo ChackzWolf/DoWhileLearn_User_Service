@@ -103,6 +103,16 @@ export class UserController implements IUserController {
         }
     }
 
+    async googleAuth(call:grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>){
+        try {
+            const data = call.request;
+            const response = await this.userService.googleAuthentication(data);
+            callback(null,response);
+        } catch (error) {
+            callback(error as grpc.ServiceError)
+        }
+    }
+
     async signup(call: grpc.ServerUnaryCall<UserRegisterDTO, UserRegisterResponse>, callback: grpc.sendUnaryData<UserRegisterResponse>): Promise<void> {
         try {
             const userData = call.request;
@@ -112,8 +122,8 @@ export class UserController implements IUserController {
             } else {
                 callback(null, { success: false, msg: "Email already exists." })
             }
-        } catch (err) {
-            callback(err as grpc.ServiceError)
+        } catch (error) {
+            callback(error as grpc.ServiceError)
         }
     }
 
@@ -123,8 +133,8 @@ export class UserController implements IUserController {
             const data = call.request;
             const response = await this.userService.VerifyOtp(data);
             callback(null, response);
-        } catch (err) {
-            callback(err as grpc.ServiceError)
+        } catch (error) {
+            callback(error as grpc.ServiceError)
         }
     }
 

@@ -2,6 +2,21 @@
 
 import { IUser } from "../Models/IUser";
 
+export interface GoogleAuthenticationRequestDTO {
+    firstName: string,
+    lastName:string,
+    email:string,
+    photoUrl:string,
+}
+export interface GoogleAuthenticationResponse {
+    userId?:string; 
+    refreshToken?:string; 
+    accessToken?: string;
+    success: boolean;
+    message: string;
+    userData?: IUser;
+}
+
 export interface UserRegisterDTO {
     firstName: string;
     lastName: string;
@@ -14,6 +29,7 @@ export interface UserRegisterResponse {
     message: string;
     tempId?: string;
     email?: string;
+    userData?: IUser;
 }
 
 export interface VerifyOtpDTO {

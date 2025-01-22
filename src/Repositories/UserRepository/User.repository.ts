@@ -73,6 +73,18 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
         }
     }
 
+    async updateProfilePicById(userId:string,profilePic:string):Promise<IUser>{
+        try {
+            const updatedUser = await UserModel.findByIdAndUpdate(userId,{$set:{profilePicture:profilePic}},{ new: true, runValidators: true });
+            if(!updatedUser){
+                throw new Error('user not found');
+            }
+            return updatedUser;
+        } catch (error) {
+            console.error("Error updating tutor:", error);
+            throw error;
+        }
+    }
 
     async updateUser( dataToUpdate: Partial<IUser>):Promise<IUser> {
         try {
@@ -113,7 +125,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 password,
                 //defaults
                 profilePicture:"",
-                phoneNumber:"",
+                phoneNumber: userData.photoUrl || "",
                 bio:"",
                 isblocked: false,
                 purchasedCourses: [],

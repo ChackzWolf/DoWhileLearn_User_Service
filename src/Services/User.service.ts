@@ -15,7 +15,9 @@ import {
     UserLoginResponse, 
     BlockUnblockDTO, 
     BlockUnblockResponse,
-    FetchStudentsResponse
+    FetchStudentsResponse,
+    GoogleAuthenticationRequestDTO,
+    GoogleAuthenticationResponse
   } from '../Interfaces/DTOs/IService.dto';
   import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
 import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interface";
@@ -89,6 +91,66 @@ export class UserService implements IUserService{
             }
  
 
+        }catch(err){
+            throw new Error(`Failed to signup: ${err}`);
+        } 
+    } 
+
+    async googleAuthentication(data: GoogleAuthenticationRequestDTO): Promise<GoogleAuthenticationResponse> {
+        try{
+            console.log(`userService ${data}`)
+            const {firstName, email, lastName, photoUrl} = data;
+            const userData = await this.userRepository.findByEmail(email);
+            if(userData){
+                const userId = userData._id;
+                const isBlocked = await this.userRepository.isBlocked(userId)
+                if(isBlocked){
+                    return {success: false, message : 'isBlocked'}
+                }
+                const {accessToken , refreshToken} = createToken(userData);
+
+
+
+                if(!userData.profilePicture){
+                    const userId = userData._id; 
+                    const user = await this.userRepository.updateProfilePicById(userId,photoUrl);
+                    return {
+                        success:true,
+                        userId,
+                        userData:user,
+                        accessToken,
+                        refreshToken,
+                        message: "User login successful.",
+                    };
+                }
+                
+                return {
+                    success:true,
+                    userId,
+                    userData,
+                    accessToken,
+                    refreshToken,
+                    message: "User login successful.",
+                };
+            }else{
+                const data = { firstName, lastName, email, password:'Jacks@123', photoUrl }
+                const createdUser: IUser | null = await this.userRepository.createUser(data);
+            
+                if (!createdUser) {
+                    throw new Error("Failed to create user.");
+                }
+                const userId: string = createdUser._id.toString();
+    
+                const { accessToken, refreshToken } = createToken(createdUser);
+                return { 
+                    success: true, 
+                    message: "User has been registered successfully.", 
+                    userId,
+                    accessToken, 
+                    refreshToken,
+                    userData:createdUser,
+                };
+            }
         }catch(err){
             throw new Error(`Failed to signup: ${err}`);
         } 

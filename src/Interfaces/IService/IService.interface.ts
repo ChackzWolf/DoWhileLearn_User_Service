@@ -11,11 +11,15 @@ import {
   UserLoginResponse, 
   BlockUnblockDTO, 
   BlockUnblockResponse,
-  FetchStudentsResponse
+  FetchStudentsResponse,
+  GoogleAuthenticationRequestDTO,
+  GoogleAuthenticationResponse
 } from '../DTOs/IService.dto';
 
 export interface IUserService {
   userRegister(userData: UserRegisterDTO): Promise<UserRegisterResponse>;
+
+  googleAuthentication(data: GoogleAuthenticationRequestDTO): Promise<GoogleAuthenticationResponse>
 
   VerifyOtp(passedData: VerifyOtpDTO): Promise<VerifyOtpResponse>;
 

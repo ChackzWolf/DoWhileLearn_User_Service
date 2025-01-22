@@ -59,17 +59,17 @@ const userProto = grpc.loadPackageDefinition(packatgeDefinition)as any;
 
 const server =  new grpc.Server()
 
-const userRepository = new UserRepository();
+const userRepository = new UserRepository(); 
 const emailService = new EmailService();
 const otpService = new OTPService();
 const userService = new UserService(userRepository, emailService, otpService);
 const userController = new UserController(userService);
 
 const grpcServer = () => {
-    server.bindAsync(
+    server.bindAsync( 
         `0.0.0.0:${configs.USER_GRPC_PORT}`,
         grpc.ServerCredentials.createInsecure(), 
-        (err,port) => {
+        (err,port) => { 
             if(err){
                 console.log(err, "Error happened grpc user service.");
                 return;
@@ -77,8 +77,8 @@ const grpcServer = () => {
                 console.log("USER_SERVICE running on port", port);
             }
         } 
-    )
-}
+    ) 
+} 
  
 
 server.addService(userProto.UserService.service, {

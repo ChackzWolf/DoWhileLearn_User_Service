@@ -31,4 +31,5 @@ export interface IUserRepository {
   verifyOTP(email: string, otp: string):Promise<boolean> 
   getNameById(userId: string): Promise<string>
   getUsersByIds(studentIds: string[]): Promise<IUser[]>
+  updateProfilePicById(userId:string,profilePic:string):Promise<IUser>
 }
