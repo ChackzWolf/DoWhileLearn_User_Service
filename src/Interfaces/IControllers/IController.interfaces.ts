@@ -19,7 +19,9 @@ import {
   GetCartItemsDTO,
   GetCartItemsResponse,
   GetCourseStatus,
-  IsInCart
+  IsInCart,
+  GoogleAuthenticationRequestDTO,
+  GoogleAuthenticationResponse
 } from "../DTOs/IController.dto";
 import { KafkaMessage } from "kafkajs";
 
@@ -28,6 +30,8 @@ export interface IUserController {
   // start(): Promise<void>
 
   handleMessage(message: KafkaMessage): Promise<void>
+
+  googleAuth(call:grpc.ServerUnaryCall<GoogleAuthenticationRequestDTO,GoogleAuthenticationResponse>, callback:grpc.sendUnaryData<GoogleAuthenticationResponse>): Promise<void>
   
   signup(call: grpc.ServerUnaryCall<UserRegisterDTO, UserRegisterResponse>, callback: grpc.sendUnaryData<UserRegisterResponse>): Promise<void>;
   

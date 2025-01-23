@@ -20,7 +20,9 @@ import {
     GetCartItemsDTO,
     GetCartItemsResponse,
     GetCourseStatus,
-    IsInCart
+    IsInCart,
+    GoogleAuthenticationRequestDTO,
+    GoogleAuthenticationResponse
 } from "../Interfaces/DTOs/IController.dto";
 
 export interface OrderEventData {
@@ -103,9 +105,11 @@ export class UserController implements IUserController {
         }
     }
 
-    async googleAuth(call:grpc.ServerUnaryCall<any,any>, callback:grpc.sendUnaryData<any>){
+    async googleAuth(call:grpc.ServerUnaryCall<GoogleAuthenticationRequestDTO,GoogleAuthenticationResponse>, callback:grpc.sendUnaryData<GoogleAuthenticationResponse>): Promise<void>{
         try {
+            console.log('auth request from controller', call.request)
             const data = call.request;
+            console.log(data)
             const response = await this.userService.googleAuthentication(data);
             callback(null,response);
         } catch (error) {

@@ -100,6 +100,7 @@ export class UserService implements IUserService{
         try{
             console.log(`userService ${data}`)
             const {firstName, email, lastName, photoUrl} = data;
+            console.log(firstName, lastName, email, photoUrl)
             const userData = await this.userRepository.findByEmail(email);
             if(userData){
                 const userId = userData._id;
@@ -110,8 +111,9 @@ export class UserService implements IUserService{
                 const {accessToken , refreshToken} = createToken(userData);
 
 
-
+                console.log('afaf',userData.profilePicture)
                 if(!userData.profilePicture){
+                    console.log('trig')
                     const userId = userData._id; 
                     const user = await this.userRepository.updateProfilePicById(userId,photoUrl);
                     return {
@@ -134,13 +136,14 @@ export class UserService implements IUserService{
                 };
             }else{
                 const data = { firstName, lastName, email, password:'Jacks@123', photoUrl }
+                console.log(data, 'new account')
                 const createdUser: IUser | null = await this.userRepository.createUser(data);
             
                 if (!createdUser) {
                     throw new Error("Failed to create user.");
                 }
                 const userId: string = createdUser._id.toString();
-    
+                console.log(createdUser, 'created user')
                 const { accessToken, refreshToken } = createToken(createdUser);
                 return { 
                     success: true, 

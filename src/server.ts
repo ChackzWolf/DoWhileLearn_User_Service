@@ -103,6 +103,7 @@ server.addService(userProto.UserService.service, {
     GetUserDetails: userController.fetchUserById.bind(userController),
     FetchUsersByIds: userController.fetchUsersByIds.bind(userController),
     UpdateUserDetails: userController.updateUserDetails.bind(userController),
+    GoogleAuthentication: userController.googleAuth.bind(userController),
 })
 
 grpcServer()

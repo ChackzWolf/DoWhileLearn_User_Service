@@ -1,5 +1,6 @@
 // IController.dto.ts
 import { Types } from 'mongoose';
+import { IUser } from '../Models/IUser';
 // User Registration DTO
 export interface UserRegisterDTO {
     email: string;
@@ -8,6 +9,21 @@ export interface UserRegisterDTO {
     password: string;
 }
 
+export interface GoogleAuthenticationRequestDTO {
+    firstName: string,
+    lastName:string,
+    email:string,
+    photoUrl:string,
+}
+
+export interface GoogleAuthenticationResponse {
+    userId?:string; 
+    refreshToken?:string; 
+    accessToken?: string;
+    success: boolean;
+    message: string;
+    userData?: IUser;
+}
 
 
 // User Registration Response DTO

@@ -79,6 +79,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             if(!updatedUser){
                 throw new Error('user not found');
             }
+            console.log(updatedUser, 'this is updated user from repo')
             return updatedUser;
         } catch (error) {
             console.error("Error updating tutor:", error);
@@ -124,8 +125,8 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 email,
                 password,
                 //defaults
-                profilePicture:"",
-                phoneNumber: userData.photoUrl || "",
+                profilePicture: userData.photoUrl || "",
+                phoneNumber:'',
                 bio:"",
                 isblocked: false,
                 purchasedCourses: [],
