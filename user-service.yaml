@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+data:
+  PORT: "3001"  # Kafka communication port
+  USER_GRPC_PORT: "5001"  # gRPC port
+  EMAIL: "dowhilelearn05@gmail.com"
+  NODE_ENV: "production"
+  LOG_RETENTION_DAYS: "7d"
+  JWT_EXPIRATION_TIME: "1m"
+  REFRESH_TOKEN_EXPIRATION_TIME: "10d"
+  MONGODB_URL_USER: "mongodb+srv://jacksoncheriyan05:MongoDBPassword@cluster0.oh2lv.mongodb.net/UserDB"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-secrets
+type: Opaque
+data:
+  # Note: These values should be base64 encoded in a real deployment
+  JWT_SECRET: "Njc3ZjM4ODJhN2E3ZWZjM2Q3MGI4OTZiOThjMTE1NDc0ZmE3YjBlNDRmMDdiMTgyODdkNWI2Yjg0ZjI3NjEwNGExNDE4MGFmMTUyOTNjZWNlMzQxN2M5YmU1NTkzMDFkNGZkYmU5MjU2YzJiMzdlNDkzMjRkMGZkNzBiYmIyNTk="
+  REFRESH_TOKEN_SECRET: "Njc3ZjM4ODJhN2E3ZWZjM2Q3MGI4OTZiOThjMTE1NDc0ZmE3YjBlNDRmMDdiMTgyODdkNWI2Yjg0ZmExNDE4MGFmMTUyOTNjZWNlMzQxN2M5YmU1NTkzMDFkNGZkYmU5MjU2YzJiSkZJRFNKVklEWUdJRFdPMzgzOTU3MzY0ODM5Mg=="
+  EMAIL_PASSWORD: "bWN1bSBtcG5sIGhrd2IgbXVkcQ=="  # Base64 encoded email password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      hostAliases:
+      - ip: "172.17.0.1"  # Docker host IP
+        hostnames:
+        - "education-kafka"
+      containers:
+      - name: user-service
+        image: user-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5001
+          name: grpc
+        - containerPort: 3001
+          name: kafka
+        envFrom:
+        - configMapRef:
+            name: user-service-config
+        - secretRef:
+            name: user-service-secrets
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          tcpSocket:
+            port: grpc
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: grpc
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5001
+    targetPort: grpc
+    protocol: TCP
+    name: grpc
+  - port: 3001
+    targetPort: kafka
+    protocol: TCP
+    name: kafka
+  selector:
+    app: user-service

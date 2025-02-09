@@ -52,4 +52,5 @@ export interface IUserController {
   courseStatus(call:grpc.ServerUnaryCall<GetCourseStatus, CheckCourseStatusResponse>, callback:grpc.sendUnaryData<CheckCourseStatusResponse>):Promise<void>
 
   getCartItems(call:grpc.ServerUnaryCall<GetCartItemsDTO, GetCartItemsResponse>, callback:grpc.sendUnaryData<GetCartItemsResponse>):Promise<void>
+
 }
