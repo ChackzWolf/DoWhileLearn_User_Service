@@ -331,7 +331,7 @@ export class UserController implements IUserController {
             const reviewData =response;
             callback(null, {reviewData});
         } catch (error) {  
-            
+            callback(error as grpc.ServiceError);
         }
     } 
     async linkNameToMessages(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
@@ -348,7 +348,7 @@ export class UserController implements IUserController {
             }
             callback(null, messageData);
         } catch (error) {  
-            
+            callback(error as grpc.ServiceError);
         }
     } 
 
@@ -360,8 +360,13 @@ export class UserController implements IUserController {
             console.log(response)
             callback(null, {users:response})
         } catch (error) {
-            
+            callback(error as grpc.ServiceError);
         }
+    }
+
+    test(_call: grpc.ServerUnaryCall<null, {success:boolean}>, callback: grpc.sendUnaryData<{success:boolean}>): void {
+        console.log('test')
+        callback(null, {success:true})
     }
 }
 
