@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { UserController }  from "./Controllers/User.Controller";
+import { UserController }  from "./TempControllers/User.Controller";
 import { connectDB } from "./Configs/DB.configs/MongoDB";
 import morgan from 'morgan';
 import winston from 'winston';
@@ -11,8 +11,8 @@ import fs from 'fs'
 import express from "express"
 import { configs } from "./Configs/ENV_configs/ENV.configs";
 import UserRepository from "./Repositories/UserRepository/User.repository";
-import { EmailService } from "./TempUtils/Send.email";
-import { OTPService } from "./TempUtils/Generate.OTP";
+import { EmailService } from "./Utils/Send.email";
+import { OTPService } from "./Utils/Generate.OTP";
 import { UserService } from "./Services/User.service";
 const app = express();
 

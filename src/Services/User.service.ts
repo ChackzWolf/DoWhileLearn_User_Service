@@ -2,7 +2,7 @@ import  { TempUser } from "../Schemas/User.schema";
 import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
 import { IUserService } from "../Interfaces/IService/IService.interface";
-import createToken from "../TempUtils/Activation.token";
+import createToken from "../Utils/Activation.token";
 import { StatusCode } from "../Interfaces/Enums/Enums";
 import { 
     UserRegisterDTO, 
