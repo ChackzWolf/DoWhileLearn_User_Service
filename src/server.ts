@@ -11,8 +11,8 @@ import fs from 'fs'
 import express from "express"
 import { configs } from "./Configs/ENV_configs/ENV.configs";
 import UserRepository from "./Repositories/UserRepository/User.repository";
-import { EmailService } from "./Utils/Send.email";
-import { OTPService } from "./Utils/Generate.OTP";
+import { EmailService } from "./TempUtils/Send.email";
+import { OTPService } from "./TempUtils/Generate.OTP";
 import { UserService } from "./Services/User.service";
 const app = express();
 
