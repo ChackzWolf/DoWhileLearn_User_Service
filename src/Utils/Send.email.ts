@@ -10,7 +10,7 @@ export class EmailService implements IEmailService {
                 service: 'gmail',
                 auth: {
                     user: configs.DWL_EMAIL,
-                    pass: configs.DWL_PASSWORD
+                    pass: configs.EMAIL_PASSWORD
                 },
             });
 

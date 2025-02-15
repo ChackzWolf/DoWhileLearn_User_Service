@@ -321,7 +321,6 @@ export class UserController implements IUserController {
     }
 
     async linkNameToReview(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
-
         console.log("vann")
         try {
             console.log('trig review fetch', call.request);
@@ -334,6 +333,7 @@ export class UserController implements IUserController {
             callback(error as grpc.ServiceError);
         }
     } 
+    
     async linkNameToMessages(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
 
         console.log("vann")
