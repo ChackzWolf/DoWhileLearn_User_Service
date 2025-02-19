@@ -3,7 +3,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { UserController }  from "./Controllers/User.Controller";
-import { connectDB } from "./Configs/DB.configs/MongoDB";
+import { connectDB} from "./Configs/DB.configs/MongoDB";
 import morgan from 'morgan';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -47,7 +47,6 @@ app.use(morgan('combined', { stream: logStream }));
 
 
 connectDB()
-
 dotenv.config();
 
 const packatgeDefinition = protoLoader.loadSync(

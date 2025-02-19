@@ -39,10 +39,9 @@ export interface OrderEventData {
     timestamp: Date;
     status: string;
 }
-// import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
+
 import { KafkaMessage } from "kafkajs";
 import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
-// const userService = new UserService()
 
 
 export class UserController implements IUserController {

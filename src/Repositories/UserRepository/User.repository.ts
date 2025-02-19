@@ -146,7 +146,6 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             if (!user) {
                 return { success: false, message: "User not found." }
             }
-            // await user.toggleBlockStatus();
             user.isblocked = !user.isblocked;
             await user.save()
             return { success: true, message: `User ${user.isblocked ? 'blocked' : "Unblocked"} successfully` };
@@ -218,87 +217,107 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             throw new Error('Failed to check cart status');
         }
     }
-
+    
     async addToPurchaseList(userId: string, courseId: string): Promise<AddToPurchaseListResponse> {
         try {
             const courseObjectId = new ObjectId(courseId);
             const user = await this.findById(userId);
-            console.log('user', user, 'userdata while adding')
-            if (user) {
-                console.log('user found while adding.')
-                if (!user.purchasedCourses.includes(courseObjectId)) {
-                    user.purchasedCourses.push(courseObjectId);
-                    await user.save();
-                    return { message: 'Course added to Purchase List', success: true };
-                } else {
-                    return { message: 'Course already in purchase list', success: true };
-                }
-            } else {
-                console.log('user no tofund while adding purchase list')
+            console.log('User data while adding:', user);
+    
+            if (!user) {
+                console.log('User not found while adding purchase list');
                 return { message: 'User not found.', success: false };
             }
-
-        } catch (error) {
-            console.error('Error toggling course in cart:', error);
-            throw new Error('Failed to update cart');
-        }
-    }
-    async removeFromPurchaseList(userId: string, courseId: string): Promise<AddToPurchaseListResponse> {
-        try {
-
-            const courseObjectId = new ObjectId(courseId);
-            console.log(userId, 'userId');
-            const user = await this.findById(userId);
-            console.log(user, 'user')
-            if (user) {
-                console.log('User found:', user);
-                const courseIndex = user.purchasedCourses.findIndex((course) => course.equals(courseObjectId));
-                if (courseIndex === -1) {
-                    // Course not in list, so add it
-                    console.log('Purchased course is empty.');
-
-                    return { message: 'Purchased course is empty.', success: false };
-                } else {
-                    // Course is in the list, so remove it
-                    console.log('Course already in user purchase list. Removing course.');
-                    user.purchasedCourses.splice(courseIndex, 1);
-                    await user.save();
-                    return { message: 'Course removed from Purchase List', success: true };
-                }
+    
+            // Check if the user already purchased the course
+            const courseExists = user.purchasedCourses.some(course => course.courseId.equals(courseObjectId));
+    
+            if (!courseExists) {
+                user.purchasedCourses.push({
+                    courseId: courseObjectId,
+                    progress: 0,
+                    currentLesson: { module: 0, lesson: 0 },
+                    completedLessons: [],
+                    completed: false,
+                    lastAccessed: new Date()
+                });
+    
+                await user.save();
+                return { message: 'Course added to Purchase List', success: true };
             } else {
-                console.log('user not found')
-                return { message: 'User not found.', success: false };
+                return { message: 'Course already in purchase list', success: true };
             }
         } catch (error) {
-            console.error('Error updating purchase list:', error);
+            console.error('Error adding course to purchase list:', error);
             throw new Error('Failed to update purchase list');
         }
     }
+    
+    async removeFromPurchaseList(userId: string, courseId: string): Promise<AddToPurchaseListResponse> {
+        try {
+            const courseObjectId = new ObjectId(courseId);
+            console.log(userId, 'userId');
+    
+            const user = await this.findById(userId);
+            console.log(user, 'user');
+    
+            if (!user) {
+                console.log('User not found');
+                return { message: 'User not found.', success: false };
+            }
+    
+            // Find the index of the course in purchasedCourses
+            const courseIndex = user.purchasedCourses.findIndex((course) => course.courseId.equals(courseObjectId));
+    
+            if (courseIndex === -1) {
+                console.log('Course not found in purchase list.');
+                return { message: 'Course not found in purchase list.', success: false };
+            }
+    
+            // Remove the course from purchasedCourses
+            console.log('Course found. Removing course.');
+            user.purchasedCourses.splice(courseIndex, 1);
+            await user.save();
+    
+            return { message: 'Course removed from Purchase List', success: true };
+    
+        } catch (error) {
+            console.error('Error removing course from purchase list:', error);
+            throw new Error('Failed to update purchase list');
+        }
+    }
+    
 
     async CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase: boolean, inWishlist: boolean }> {
         try {
             const courseObjectId = new ObjectId(courseId);
             const user = await this.findById(userId);
+    
             if (!user) {
                 throw new Error('User not found');
             }
-
+    
             console.log(user.cart, "user cart");
-            console.log(courseId, 'course Id')
-            const cart = user.cart.includes(courseObjectId)
-            console.log(cart, 'cart status')
-            const purchaseList = user.purchasedCourses.includes(courseObjectId);
-
-            const wishlist = user.wishlist.includes(courseObjectId);
-
-            return { inCart: !!cart, inPurchase: !!purchaseList, inWishlist: !!wishlist }
-
-
+            console.log(courseId, 'course Id');
+    
+            // Check if course is in cart
+            const inCart = user.cart.includes(courseObjectId);
+            console.log(inCart, 'cart status');
+    
+            // ✅ Check if course is in purchasedCourses by searching for courseId inside objects
+            const inPurchase = user.purchasedCourses.some(course => course.courseId.equals(courseObjectId));
+    
+            // Check if course is in wishlist
+            const inWishlist = user.wishlist.includes(courseObjectId);
+    
+            return { inCart, inPurchase, inWishlist };
+    
         } catch (error) {
             console.error('Error checking if course is in cart:', error);
             throw new Error('Failed to check user course status');
         }
     }
+    
 
     async getCartItems(userId: string): Promise<CartItem[] | null> {
         try {

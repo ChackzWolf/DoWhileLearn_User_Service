@@ -42,14 +42,51 @@ const UserSchema: Schema<IUser> = new Schema({
         default: false
     },
     purchasedCourses: [{
-        type: Schema.Types.ObjectId,
+        courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+        progress: { type: Number, default: 0 },
+        currentLesson: {
+            module:{ type: Number},
+            lesson: {type: Number},
+        },
+        completedLessons: [{
+            module: { type: Number },
+            lesson: { type: Number },
+            noTest: { type: Boolean, default: false},
+            testCompleted: { type: Boolean, default: false } // ✅ NEW: Tracks if test was passed
+        }],
+        completed: { type: Boolean, default: false }, 
+        lastAccessed: { type: Date, default: Date.now }
     }],
     cart:[{
         type: Schema.Types.ObjectId,
     }],
     wishlist:[{
         type: Schema.Types.ObjectId,
-    }]
+    }],
+    certifications: [{
+        courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },  
+        title: { type: String, required: true },  
+        issueDate: { type: Date, default: Date.now },  
+        certificateUrl: { type: String, required: true }  
+    }],
+    isVerified: {
+        type: Boolean,
+        default: true
+    },
+    badges: [{
+        title: {type: String, required:true},
+        issueDate: { type: Date, default: Date.now },  
+        Url: { type: String, required: true }  
+    }],
+    socialLinks:{
+        github: { type: String },
+        linkedIn: { type: String },
+        leetCode: { type: String },
+        codeChef: { type: String },
+        codeForce: { type: String },
+        hackerRank: { type: String },
+        stackOverflow: { type: String }
+    }
 
 }, {
     timestamps: true

@@ -1,4 +1,8 @@
 import mongoose, { Document,Types } from "mongoose";
+import { ICertification } from "./ICertification";
+import { IBadge } from "./IBadge";
+import { ISocialLinks } from "./ISocialLinks";
+import { IPurchasedCourse } from "./IPurchasedCourse";
 
 
 
@@ -11,13 +15,17 @@ export interface IUser extends Document {
     email: string;
     password: string;
     isblocked: boolean;
-    purchasedCourses: mongoose.Types.ObjectId[]; // Array of ObjectId values
+    purchasedCourses: IPurchasedCourse[];
     cart:mongoose.Types.ObjectId[]; // Array of ObjectId values
     wishlist:mongoose.Types.ObjectId[]; // Array of ObjectId values
     profilePicture:string,
     phoneNumber:string,
     bio:string,
     userId?:string
+    isVerified: boolean,
+    certifications:ICertification[],
+    badges:IBadge[],
+    socialLinks:ISocialLinks,
     comparePassword: (password: string) => Promise<boolean>;
     SignAccessToken: () => string;
     SignRefreshToken: () => string;
@@ -25,6 +33,15 @@ export interface IUser extends Document {
     unblock(): Promise<void>;
     toggleBlockStatus(): Promise<void>;
 } 
+
+
+
+
+
+
+
+
+
 
 export interface ITempUser extends Document {
     userData: IUser;
