@@ -305,7 +305,10 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             console.log(inCart, 'cart status');
             console.log(user.purchasedCourses, 'purchasedCourses');
             // ✅ Check if course is in purchasedCourses by searching for courseId inside objects
-            const inPurchase = user.purchasedCourses.some(course => course.courseId.equals(courseObjectId));
+            let inPurchase = false
+            if(user.purchasedCourses.length > 0){
+                inPurchase = user.purchasedCourses.some(course => course.courseId.equals(courseObjectId));
+            }
     
             // Check if course is in wishlist
             const inWishlist = user.wishlist.includes(courseObjectId);
