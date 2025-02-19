@@ -315,7 +315,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
     
             // Check if course is in wishlist
             const inWishlist = user.wishlist.includes(courseObjectId);
-    
+            console.log(purchasedCourseStatus,'/////////////////////////////// purchased course status')
             return { inCart, inPurchase, inWishlist, purchasedCourseStatus };
     
         } catch (error) {
