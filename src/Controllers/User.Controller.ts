@@ -220,7 +220,7 @@ export class UserController implements IUserController {
             callback(null, response)
         } catch (err) {
             callback(err as grpc.ServiceError);
-        }
+        } 
     }
 
     async isInCart(call: grpc.ServerUnaryCall<IsInCart, IsInCartResponse>, callback: grpc.sendUnaryData<IsInCartResponse>): Promise<void> {
