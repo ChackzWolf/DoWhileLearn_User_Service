@@ -12,6 +12,7 @@ import { BaseRepository } from "../BaseRepository/Base.repository";
 // import { ObjectId } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { StatusCode } from "../../Interfaces/Enums/Enums";
+import { IPurchasedCourse } from "../../Interfaces/Models/IPurchasedCourse";
 
 
 class UserRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -288,7 +289,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
     }
     
 
-    async CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase: boolean, inWishlist: boolean }> {
+    async CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase: boolean, inWishlist: boolean, purchasedCourseStatus:IPurchasedCourse | null }> {
         try {
             const courseObjectId = new ObjectId(courseId);
             const user = await this.findById(userId);
@@ -306,14 +307,16 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             console.log(user.purchasedCourses, 'purchasedCourses');
             // ✅ Check if course is in purchasedCourses by searching for courseId inside objects
             let inPurchase = false
+            let  purchasedCourseStatus = null
             if(user.purchasedCourses.length > 0){
-                inPurchase = user.purchasedCourses.some(course => course.courseId.equals(courseObjectId));
+                purchasedCourseStatus = user.purchasedCourses.find(course => course.courseId.equals(courseObjectId)) || null;
+                inPurchase = !!purchasedCourseStatus;
             }
     
             // Check if course is in wishlist
             const inWishlist = user.wishlist.includes(courseObjectId);
     
-            return { inCart, inPurchase, inWishlist };
+            return { inCart, inPurchase, inWishlist, purchasedCourseStatus };
     
         } catch (error) {
             console.error('Error checking if course is in cart:', error);
