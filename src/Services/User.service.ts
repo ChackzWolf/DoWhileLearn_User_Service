@@ -23,6 +23,7 @@ import {
 import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interface";
 import { IEmailService } from "../Interfaces/IUtils/IEmailService";
 import { IOTPService } from "../Interfaces/IUtils/IOTPService";
+import { IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
 
 
 dotenv.config();
@@ -362,11 +363,11 @@ export class UserService implements IUserService{
         }
     }
  
-    async checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean }>{
+    async checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean, purchasedCourseStatus:IPurchasedCourse | null}>{
         try {
             const response = await this.userRepository.CourseStatus(data.userId,data.courseId);
             console.log(response)
-            return {inCart:response.inCart, inPurchase:response.inPurchase, inWishlist:response.inWishlist};
+            return {inCart:response.inCart, inPurchase:response.inPurchase, inWishlist:response.inWishlist, purchasedCourseStatus: response.purchasedCourseStatus};
         } catch (error) {
             
             console.log(error)

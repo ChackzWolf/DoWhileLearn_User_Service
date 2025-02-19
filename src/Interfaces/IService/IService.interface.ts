@@ -15,6 +15,7 @@ import {
   GoogleAuthenticationRequestDTO,
   GoogleAuthenticationResponse
 } from '../DTOs/IService.dto';
+import { IPurchasedCourse } from '../Models/IPurchasedCourse';
 
 export interface IUserService {
   userRegister(userData: UserRegisterDTO): Promise<UserRegisterResponse>;
@@ -30,4 +31,6 @@ export interface IUserService {
   blockUnblock(data: BlockUnblockDTO): Promise<BlockUnblockResponse>;
 
   fetchStudents(): Promise<FetchStudentsResponse>;
+
+  checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean, purchasedCourseStatus:IPurchasedCourse | null}>
 }

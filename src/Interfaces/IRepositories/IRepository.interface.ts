@@ -9,6 +9,7 @@ import {
           CartItem
         } from '../DTOs/IRepository.dto';
 import { ObjectId } from 'mongodb';
+import { IPurchasedCourse } from '../Models/IPurchasedCourse';
 
 export interface IUserRepository {
   updateUser( dataToUpdate: Partial<IUser>):Promise<IUser>;
@@ -20,7 +21,7 @@ export interface IUserRepository {
   toggleCourseInCart(userId: string, courseId: string): Promise<CourseInCartResponse>;
   CheckIfInCart(userId: string, courseId: string): Promise<{ inCart: boolean }>;
   addToPurchaseList(userId: string, courseId: string): Promise<AddToPurchaseListResponse>;
-  CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase: boolean, inWishlist: boolean }>;
+  CourseStatus(userId: string, courseId: string): Promise<{ inCart: boolean, inPurchase: boolean, inWishlist: boolean, purchasedCourseStatus:IPurchasedCourse | null  }>;
   getCartItems(userId: string): Promise< CartItem[] | null>
   isBlocked(userId: string): Promise<boolean | undefined>
   passwordChange(userId: string, newPassword: string): Promise<{ message: string, success: boolean, status: number }>
