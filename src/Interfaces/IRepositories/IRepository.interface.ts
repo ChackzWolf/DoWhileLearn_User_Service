@@ -9,7 +9,7 @@ import {
           CartItem
         } from '../DTOs/IRepository.dto';
 import { ObjectId } from 'mongodb';
-import { IPurchasedCourse } from '../Models/IPurchasedCourse';
+import { ICurrentLesson, IPurchasedCourse } from '../Models/IPurchasedCourse';
 
 export interface IUserRepository {
   updateUser( dataToUpdate: Partial<IUser>):Promise<IUser>;
@@ -33,4 +33,5 @@ export interface IUserRepository {
   getNameById(userId: string): Promise<string>
   getUsersByIds(studentIds: string[]): Promise<IUser[]>
   updateProfilePicById(userId:string,profilePic:string):Promise<IUser>
+  updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>
 }

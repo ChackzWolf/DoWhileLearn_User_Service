@@ -21,9 +21,11 @@ import {
   GetCourseStatus,
   IsInCart,
   GoogleAuthenticationRequestDTO,
-  GoogleAuthenticationResponse
+  GoogleAuthenticationResponse,
+  UpdateCurrentCourseDTO
 } from "../DTOs/IController.dto";
 import { KafkaMessage } from "kafkajs";
+import { ICurrentLesson } from '../Models/IPurchasedCourse';
 
 export interface IUserController {  
 
@@ -52,5 +54,10 @@ export interface IUserController {
   courseStatus(call:grpc.ServerUnaryCall<GetCourseStatus, CheckCourseStatusResponse>, callback:grpc.sendUnaryData<CheckCourseStatusResponse>):Promise<void>
 
   getCartItems(call:grpc.ServerUnaryCall<GetCartItemsDTO, GetCartItemsResponse>, callback:grpc.sendUnaryData<GetCartItemsResponse>):Promise<void>
+
+  updateCurrentLesson(call:grpc.ServerUnaryCall<UpdateCurrentCourseDTO, ICurrentLesson>, callback:grpc.sendUnaryData<ICurrentLesson>):Promise<void>
+
+
+
 
 }

@@ -10,7 +10,7 @@ export interface IPurchasedCourse {
   }
 
 
-interface ICurrentLesson {
+export interface ICurrentLesson {
     module?: number;
     lesson?: number;
   }

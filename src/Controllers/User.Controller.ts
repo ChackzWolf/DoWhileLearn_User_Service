@@ -22,7 +22,8 @@ import {
     GetCourseStatus,
     IsInCart,
     GoogleAuthenticationRequestDTO,
-    GoogleAuthenticationResponse
+    GoogleAuthenticationResponse,
+    UpdateCurrentCourseDTO
 } from "../Interfaces/DTOs/IController.dto";
 
 export interface OrderEventData {
@@ -42,6 +43,7 @@ export interface OrderEventData {
 
 import { KafkaMessage } from "kafkajs";
 import { kafkaConfig } from "../Configs/Kafka.configs/Kafka.config";
+import { ICurrentLesson } from "../Interfaces/Models/IPurchasedCourse";
 
 
 export class UserController implements IUserController {
@@ -215,7 +217,7 @@ export class UserController implements IUserController {
     async addToCart(call: grpc.ServerUnaryCall<AddToCartDTO, AddToCartResponse>, callback: grpc.sendUnaryData<AddToCartResponse>): Promise<void> {
         try {
             const data = call.request
-            const response = await this.userService.addToCart(data)
+            const response = await this.userService.addToCart(data) 
             console.log(response, 'response from controller');
             callback(null, response)
         } catch (err) {
@@ -363,6 +365,16 @@ export class UserController implements IUserController {
         }
     }
 
+    async updateCurrentLesson(call:grpc.ServerUnaryCall<UpdateCurrentCourseDTO, ICurrentLesson>, callback:grpc.sendUnaryData<ICurrentLesson>):Promise<void> {
+        try {
+            const data = call.request;
+            const response = await this.userService.updateCurrentLesson(data)
+            callback(null, response)
+        } catch (error) {
+            callback(error as grpc.ServiceError);
+        }
+    }
+ 
     test(_call: grpc.ServerUnaryCall<null, {success:boolean}>, callback: grpc.sendUnaryData<{success:boolean}>): void {
         console.log('test')
         callback(null, {success:true})

@@ -23,7 +23,7 @@ import {
 import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interface";
 import { IEmailService } from "../Interfaces/IUtils/IEmailService";
 import { IOTPService } from "../Interfaces/IUtils/IOTPService";
-import { IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
+import { ICurrentLesson, IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
 
 
 dotenv.config();
@@ -530,6 +530,16 @@ export class UserService implements IUserService{
         } catch (error) {
             console.error('Error while fetching users by ids', error);
             throw new Error('Could not attach names to reviews.');
+        }
+    }
+
+    async updateCurrentLesson( data: {moduleIndex: number, lessonIndex:number, courseId:string, userId:string}):Promise<ICurrentLesson>{
+        try {
+            const currentLesson = await this.userRepository.updateCurrentLesson(data);
+            return currentLesson
+        } catch (error) {
+            console.error(error);
+            throw new Error('Error updating update current lesson ')
         }
     }
     

@@ -149,6 +149,13 @@ export interface GetCartItemsDTO {
     userId: string;
 }
 
+export interface UpdateCurrentCourseDTO {
+    userId:string;
+    courseId: string;
+    moduleIndex: number;
+    lessonIndex: number;
+}
+
 // Get Cart Items Response DTO
 export interface GetCartItemsResponse {
     courseIds?: CartItem[];

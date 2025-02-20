@@ -12,7 +12,7 @@ import { BaseRepository } from "../BaseRepository/Base.repository";
 // import { ObjectId } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { StatusCode } from "../../Interfaces/Enums/Enums";
-import { IPurchasedCourse } from "../../Interfaces/Models/IPurchasedCourse";
+import { ICurrentLesson, IPurchasedCourse } from "../../Interfaces/Models/IPurchasedCourse";
 
 
 class UserRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -321,6 +321,23 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
         } catch (error) {
             console.error('Error checking if course is in cart:', error);
             throw new Error('Failed to check user course status');
+        }
+    }
+
+    async updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>{
+        try {
+            const {userId, courseId, lessonIndex, moduleIndex} = data;
+            const user = await this.findById(userId);  
+            if (!user) throw new Error('User not found');
+            const purchasedCourse = user.purchasedCourses.find(course => course.courseId.equals(new ObjectId(courseId)))
+            if (!purchasedCourse) throw new Error('Course not found in purchasedCourses');
+            purchasedCourse.currentLesson = { module: moduleIndex, lesson: lessonIndex };
+            await user.save();
+            const currentLesson = purchasedCourse.currentLesson
+            return currentLesson
+
+        } catch (error) {
+            throw new Error("error updating current lesson")
         }
     }
     

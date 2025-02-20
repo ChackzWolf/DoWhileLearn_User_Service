@@ -103,6 +103,7 @@ server.addService(userProto.UserService.service, {
     FetchUsersByIds: userController.fetchUsersByIds.bind(userController),
     UpdateUserDetails: userController.updateUserDetails.bind(userController),
     GoogleAuthentication: userController.googleAuth.bind(userController),
+    UpdateCurrentLesson: userController.updateCurrentLesson.bind(userController),
     Test: userController.test.bind(userController), 
 })
 
