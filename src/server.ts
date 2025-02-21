@@ -14,6 +14,7 @@ import UserRepository from "./Repositories/UserRepository/User.repository";
 import { EmailService } from "./Utils/Send.email";
 import { OTPService } from "./Utils/Generate.OTP";
 import { UserService } from "./Services/User.service";
+import { CertificateGenerator } from "./Utils/GenerateCertificate";
 const app = express();
 
 
@@ -57,11 +58,11 @@ const packatgeDefinition = protoLoader.loadSync(
 const userProto = grpc.loadPackageDefinition(packatgeDefinition)as any;
 
 const server =  new grpc.Server()
-
+const certificateGenerator = new CertificateGenerator()
 const userRepository = new UserRepository(); 
 const emailService = new EmailService();
 const otpService = new OTPService();
-const userService = new UserService(userRepository, emailService, otpService);
+const userService = new UserService(userRepository, emailService, otpService, certificateGenerator);
 const userController = new UserController(userService);
 
 const grpcServer = () => {

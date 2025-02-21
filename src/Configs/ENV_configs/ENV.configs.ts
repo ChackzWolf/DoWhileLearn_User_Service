@@ -12,7 +12,12 @@ export const configs = {
     DWL_EMAIL : process.env.EMAIL || 'dowhilelearn05@gmail.com',
     EMAIL_PASSWORD : process.env.EMAIL_PASSWORD || '',
 
-
+    //AWS CONFIGS
+    BUCKET_NAME: process.env.BUCKET_NAME || '',
+    AWS_ACCESS_KEY_ID : process.env.AWS_ACCESS_KEY_ID || '',
+    AWS_SECRET_ACCESS_KEY : process.env.AWS_SECRET_ACCESS_KEY || '',
+    AWS_REGION : process.env.AWS_REGION || '', 
+    
     // DB COFNIGS
     MONGODB_URL_USER : process.env.MONGODB_URL_USER || '',
     

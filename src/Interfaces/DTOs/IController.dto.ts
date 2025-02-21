@@ -162,6 +162,8 @@ export interface UpdateCompletedLessonDTO {
     moduleIndex: number;
     lessonIndex: number;
     totalLessons: number;
+    courseName:string;
+    tutorName:string;
 }
 
 // Get Cart Items Response DTO

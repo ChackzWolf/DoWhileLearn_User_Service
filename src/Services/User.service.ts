@@ -24,6 +24,8 @@ import { IUserRepository } from "../Interfaces/IRepositories/IRepository.interfa
 import { IEmailService } from "../Interfaces/IUtils/IEmailService";
 import { IOTPService } from "../Interfaces/IUtils/IOTPService";
 import { ICurrentLesson, IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
+import { ICertificateGenerator } from "../Interfaces/IUtils/ICertificateGenerator";
+import { uploadPDF } from "../Configs/S3.configs";
 
 
 dotenv.config();
@@ -51,11 +53,13 @@ export class UserService implements IUserService{
     private userRepository: IUserRepository;
     private emailService: IEmailService;
     private otpService: IOTPService;
+    private certificateGenerator: ICertificateGenerator
 
-    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService) {
+    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService, certificateGenerator:ICertificateGenerator) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.otpService = otpService;
+        this.certificateGenerator = certificateGenerator;
     }
     
     
@@ -543,10 +547,27 @@ export class UserService implements IUserService{
         }
     }
 
-    async updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number}):Promise<{data:IPurchasedCourse}>{
+    async updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number, courseName:string, tutorName:string}):Promise<{data:IPurchasedCourse}>{
         try {
             const response =  await this.userRepository.updateCompletedLesson(data);
             if(response){
+                if(response.completed){
+                    const user = await this.userRepository.findByUserId(data.userId)
+
+                    const now = new Date();
+                    
+
+                    const dataForCertificate = {
+                        studentName: `${user?.firstName} ${user?.lastName}`,
+                        courseName: data.courseName,
+                        completionDate: now.toISOString().split('T')[0],
+                        certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+                        instructorName: data.tutorName,
+                    }
+                    const certificate = await this.certificateGenerator.generateCertificate(dataForCertificate)
+                    const certificateUrl = await uploadPDF(certificate,`${data.courseName}${data.userId}`)
+                    console.log(certificateUrl,'//////////////////////////////////////////////////')
+                }
                 return {data : response}
             }else{
                 throw new Error('Error updating update completed lesson ')
