@@ -559,7 +559,7 @@ export class UserService implements IUserService{
 
                     const courseCertificate = await this.userRepository.getCertificate(data.userId, data.courseId);
                     console.log(courseCertificate,'courseCertificate');
-                    // if(!courseCertificate.success){
+                    if(!courseCertificate.success){
 
                         const now = new Date();
                         const dataForCertificate = {
@@ -578,9 +578,9 @@ export class UserService implements IUserService{
                             certificateUrl: certificateUrl.publicUrl
                         }
                         console.log(certificationData,'certification data');
-                        // await this.userRepository.addCertification(data.userId, certificationData)
+                        await this.userRepository.addCertification(data.userId, certificationData)
                     }
-                // }
+                }
                 return {data : response}
             }else{
                 throw new Error('Error updating update completed lesson ')

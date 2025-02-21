@@ -22,10 +22,10 @@ export class CertificateGenerator implements ICertificateGenerator {
             right: 50
         },
         colors: {
-            primary: '#1a365d',    // Deep blue
-            secondary: '#718096',  // Slate gray
-            text: '#2d3748',      // Dark gray
-            border: '#cbd5e0'     // Light gray
+            primary: '#663399',    // Deep violet
+            secondary: '#8B7AA8',  // Muted violet
+            text: '#2D2438',      // Dark violet
+            border: '#E0D5F5'     // Light violet
         },
         fonts: {
             title: 'Helvetica-Bold',
