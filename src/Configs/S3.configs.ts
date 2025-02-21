@@ -69,7 +69,7 @@ export const uploadPDF = async (pdfBinary: Buffer, pdfName: string) => {
 
     console.log(region, "region")
     console.log(bucketName, 'bucketName')
-    console.log()
+
     // Set the content type for PDF files
     const contentType = 'application/pdf';
   
