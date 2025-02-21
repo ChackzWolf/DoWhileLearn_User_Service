@@ -558,6 +558,7 @@ export class UserService implements IUserService{
                     const user = await this.userRepository.findByUserId(data.userId)
 
                     const courseCertificate = await this.userRepository.getCertificate(data.userId, data.courseId);
+                    console.log(courseCertificate,'courseCertificate');
                     if(!courseCertificate.success){
 
                         const now = new Date();
