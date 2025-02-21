@@ -22,11 +22,10 @@ export class CertificateGenerator implements ICertificateGenerator {
             right: 50
         },
         colors: {
-            primary: '#2B3499',    // Rich blue
-            secondary: '#FF6C22',  // Vibrant orange
-            text: '#2B2730',       // Dark gray for better readability
-            accent: '#FFE5CA',     // Light orange
-            border: '#BAB2B5'      // Subtle border color
+            primary: '#1a365d',    // Deep blue
+            secondary: '#718096',  // Slate gray
+            text: '#2d3748',      // Dark gray
+            border: '#cbd5e0'     // Light gray
         },
         fonts: {
             title: 'Helvetica-Bold',
@@ -48,8 +47,7 @@ export class CertificateGenerator implements ICertificateGenerator {
                 doc.on('end', () => resolve(Buffer.concat(chunks)));
                 doc.on('error', reject);
 
-                this.addBackground(doc);
-                this.addDecorations(doc);
+                this.addBorders(doc);
                 this.addLogo(doc);
                 this.addContent(doc, certificateData);
                 this.addFooter(doc, certificateData);
@@ -61,91 +59,52 @@ export class CertificateGenerator implements ICertificateGenerator {
         });
     }
 
-    private addBackground(doc: PDFKit.PDFDocument): void {
-        // Add subtle gradient background
-        doc.rect(0, 0, doc.page.width, doc.page.height)
-           .fill(`linear-gradient(to bottom, ${this.defaultStyles.colors.accent}, white)`);
-
-        // Main border with double-line effect
-        doc.rect(25, 25, doc.page.width - 50, doc.page.height - 50)
-           .lineWidth(3)
-           .stroke(this.defaultStyles.colors.primary);
+    private addBorders(doc: PDFKit.PDFDocument): void {
+        // Elegant double border
+        const outerMargin = 40;
+        const innerMargin = 60;
         
-        doc.rect(35, 35, doc.page.width - 70, doc.page.height - 70)
-           .lineWidth(1)
-           .stroke(this.defaultStyles.colors.secondary);
-    }
-
-    private addDecorations(doc: PDFKit.PDFDocument): void {
-        // Add corner flourishes
-        this.addCornerFlourish(doc, 40, 40);
-        this.addCornerFlourish(doc, doc.page.width - 40, 40, 90);
-        this.addCornerFlourish(doc, 40, doc.page.height - 40, 270);
-        this.addCornerFlourish(doc, doc.page.width - 40, doc.page.height - 40, 180);
-
-        // Add decorative side borders
-        this.addSideBorders(doc);
-    }
-
-    private addCornerFlourish(doc: PDFKit.PDFDocument, x: number, y: number, rotation: number = 0): void {
-        doc.save()
-           .translate(x, y)
-           .rotate(rotation)
-           .path('M 0,0 C 20,-20 40,-20 60,0 M 0,0 C -20,20 -20,40 0,60')
+        // Outer border
+        doc.rect(outerMargin, outerMargin, 
+                 doc.page.width - (outerMargin * 2), 
+                 doc.page.height - (outerMargin * 2))
            .lineWidth(2)
-           .stroke(this.defaultStyles.colors.secondary);
-        doc.restore();
-    }
+           .stroke(this.defaultStyles.colors.primary);
 
-    private addSideBorders(doc: PDFKit.PDFDocument): void {
-        // Left and right decorative borders
-        const pattern = 'M 0,0 C 10,20 -10,40 0,60';
-        const repetitions = 7;
-        const spacing = (doc.page.height - 120) / repetitions;
-
-        for (let i = 0; i < repetitions; i++) {
-            // Left border
-            doc.save()
-               .translate(50, 80 + i * spacing)
-               .path(pattern)
-               .lineWidth(1)
-               .stroke(this.defaultStyles.colors.border);
-
-            // Right border
-            doc.save()
-               .translate(doc.page.width - 50, 80 + i * spacing)
-               .path(pattern)
-               .lineWidth(1)
-               .stroke(this.defaultStyles.colors.border);
-            
-            doc.restore();
-        }
+        // Inner border
+        doc.rect(innerMargin, innerMargin, 
+                 doc.page.width - (innerMargin * 2), 
+                 doc.page.height - (innerMargin * 2))
+           .lineWidth(1)
+           .stroke(this.defaultStyles.colors.border);
     }
 
     private addLogo(doc: PDFKit.PDFDocument): void {
-        // Add decorative frame around logo
-        const logoY = 60;
-        doc.save()
-           .translate(doc.page.width / 2, logoY)
-           .path('M -100,-20 L 100,-20 L 100,20 L -100,20 Z')
-           .lineWidth(2)
-           .stroke(this.defaultStyles.colors.secondary);
-
-        // Logo text with shadow effect
-        doc.fontSize(28)
+        const logoY = 90;
+        
+        // Simple, elegant logo presentation
+        doc.fontSize(32)
            .font(this.defaultStyles.fonts.title)
            .fillColor(this.defaultStyles.colors.primary)
-           .text('DoWhile {Learn}', 0, logoY - 10, {
+           .text('DoWhile {Learn}', 0, logoY, {
                align: 'center',
                width: doc.page.width
            });
+
+        // Subtle underline
+        const lineWidth = 200;
+        const lineY = logoY + 45;
+        doc.moveTo((doc.page.width - lineWidth) / 2, lineY)
+           .lineTo((doc.page.width + lineWidth) / 2, lineY)
+           .lineWidth(1)
+           .stroke(this.defaultStyles.colors.border);
     }
 
     private addContent(doc: PDFKit.PDFDocument, certificateData: ICertificateData): void {
         const centerY = doc.page.height / 2 - 30;
 
-        // Title with decorative underline
-        doc.fontSize(42)
+        // Certificate title
+        doc.fontSize(46)
            .font(this.defaultStyles.fonts.title)
            .fillColor(this.defaultStyles.colors.primary)
            .text('Certificate of Completion', 0, centerY - 100, {
@@ -153,15 +112,7 @@ export class CertificateGenerator implements ICertificateGenerator {
                width: doc.page.width
            });
 
-        // Decorative line under title
-        const titleWidth = 400;
-        doc.save()
-           .translate((doc.page.width - titleWidth) / 2, centerY - 50)
-           .path(`M 0,0 L ${titleWidth},0`)
-           .lineWidth(3)
-           .stroke(this.defaultStyles.colors.secondary);
-
-        // Certificate content with improved spacing
+        // Main content with improved spacing
         doc.fontSize(24)
            .font(this.defaultStyles.fonts.body)
            .fillColor(this.defaultStyles.colors.text)
@@ -170,8 +121,8 @@ export class CertificateGenerator implements ICertificateGenerator {
                width: doc.page.width
            });
 
-        // Student name with decorative elements
-        doc.fontSize(32)
+        // Student name
+        doc.fontSize(36)
            .font(this.defaultStyles.fonts.title)
            .fillColor(this.defaultStyles.colors.primary)
            .text(certificateData.studentName, 0, centerY + 40, {
@@ -179,20 +130,20 @@ export class CertificateGenerator implements ICertificateGenerator {
                width: doc.page.width
            });
 
-        // Completion text
+        // Course completion text
         doc.fontSize(18)
            .font(this.defaultStyles.fonts.body)
            .fillColor(this.defaultStyles.colors.text)
-           .text('has successfully completed the course', 0, centerY + 90, {
+           .text('has successfully completed the course', 0, centerY + 100, {
                align: 'center',
                width: doc.page.width
            });
 
-        // Course name with emphasis
+        // Course name
         doc.fontSize(28)
            .font(this.defaultStyles.fonts.title)
-           .fillColor(this.defaultStyles.colors.secondary)
-           .text(certificateData.courseName, 0, centerY + 120, {
+           .fillColor(this.defaultStyles.colors.primary)
+           .text(certificateData.courseName, 0, centerY + 140, {
                align: 'center',
                width: doc.page.width
            });
@@ -200,48 +151,41 @@ export class CertificateGenerator implements ICertificateGenerator {
 
     private addFooter(doc: PDFKit.PDFDocument, certificateData: ICertificateData): void {
         const signatureY = doc.page.height - 150;
-
-        // Signature section with improved layout
-        doc.fontSize(14)
-           .font(this.defaultStyles.fonts.body)
-           .fillColor(this.defaultStyles.colors.text);
-
-        // Date section
-        doc.text(certificateData.completionDate, 150, signatureY + 20, {
-            width: 200,
-            align: 'center'
-        });
-        doc.text('Date', 150, signatureY + 40, {
-            width: 200,
-            align: 'center'
-        });
-
-        // Instructor section
-        doc.text(certificateData.instructorName, doc.page.width - 350, signatureY + 20, {
-            width: 200,
-            align: 'center'
-        });
-        doc.text('Instructor', doc.page.width - 350, signatureY + 40, {
-            width: 200,
-            align: 'center'
-        });
-
-        // Enhanced signature lines
-        this.drawSignatureLine(doc, 150, signatureY, 200);
-        this.drawSignatureLine(doc, doc.page.width - 350, signatureY, 200);
+        
+        // Signature lines with labels
+        this.addSignatureLine(doc, 'Date', certificateData.completionDate, 150, signatureY);
+        this.addSignatureLine(doc, 'Instructor', certificateData.instructorName, doc.page.width - 350, signatureY);
 
         // Certificate ID with subtle styling
         doc.fontSize(10)
-           .fillColor(this.defaultStyles.colors.border)
-           .text(`Certificate ID: ${certificateData.certificateId}`, 50, doc.page.height - 40);
+           .fillColor(this.defaultStyles.colors.secondary)
+           .text(`Certificate ID: ${certificateData.certificateId}`, 70, doc.page.height - 70);
     }
 
-    private drawSignatureLine(doc: PDFKit.PDFDocument, x: number, y: number, width: number): void {
-        doc.save()
-           .moveTo(x, y)
-           .lineTo(x + width, y)
+    private addSignatureLine(doc: PDFKit.PDFDocument, label: string, value: string, x: number, y: number): void {
+        const lineWidth = 200;
+        
+        // Signature value
+        doc.fontSize(14)
+           .font(this.defaultStyles.fonts.body)
+           .fillColor(this.defaultStyles.colors.text)
+           .text(value, x, y, {
+               width: lineWidth,
+               align: 'center'
+           });
+
+        // Signature line
+        doc.moveTo(x, y + 25)
+           .lineTo(x + lineWidth, y + 25)
            .lineWidth(1)
-           .stroke(this.defaultStyles.colors.primary)
-           .restore();
+           .stroke(this.defaultStyles.colors.primary);
+
+        // Label
+        doc.fontSize(12)
+           .fillColor(this.defaultStyles.colors.secondary)
+           .text(label, x, y + 35, {
+               width: lineWidth,
+               align: 'center'
+           });
     }
 }
