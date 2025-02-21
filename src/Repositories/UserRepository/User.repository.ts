@@ -331,7 +331,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             if (!user) throw new Error('User not found');
             const purchasedCourse = user.purchasedCourses.find(course => course.courseId.equals(new ObjectId(courseId)))
             if (!purchasedCourse) throw new Error('Course not found in purchasedCourses');
-            purchasedCourse.currentLesson = { module: moduleIndex, lesson: lessonIndex };
+            purchasedCourse.currentLesson = { module: moduleIndex+1, lesson: lessonIndex+1 };
             await user.save();
             const currentLesson = purchasedCourse.currentLesson
             return currentLesson
@@ -349,13 +349,13 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             const purchasedCourse = user.purchasedCourses.find(course => course.courseId.equals(new ObjectId(courseId)));
             if (!purchasedCourse) throw new Error('Course not found in purchasedCourses');
             const isLessonCompleted = purchasedCourse.completedLessons.some(lesson =>
-                lesson.module === moduleIndex && lesson.lesson === lessonIndex
+                lesson.module === moduleIndex+1 && lesson.lesson === lessonIndex+1
             );
             if (!isLessonCompleted) {
                 // Push new completed lesson
                 purchasedCourse.completedLessons.push({
-                    module: moduleIndex,
-                    lesson: lessonIndex,
+                    module: moduleIndex+1,
+                    lesson: lessonIndex+1,
                     noTest:false,
                     testCompleted: false, 
                 });
