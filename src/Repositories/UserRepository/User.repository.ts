@@ -13,6 +13,7 @@ import { BaseRepository } from "../BaseRepository/Base.repository";
 import { ObjectId } from 'mongodb';
 import { StatusCode } from "../../Interfaces/Enums/Enums";
 import { ICurrentLesson, IPurchasedCourse } from "../../Interfaces/Models/IPurchasedCourse";
+import { ICertification } from "../../Interfaces/Models/ICertification";
 
 
 class UserRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -378,7 +379,64 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             throw new Error("error updating current lesson")
         }
     }
+
+    async getCertificate(userId: string, courseId: string):Promise<{certificate?:ICertification, success:boolean}> {
+        try {
+            const user = await this.findById(userId);
+            if (!user) throw new Error('User not found');
     
+            // Convert courseId to ObjectId
+            const courseObjectId = new ObjectId(courseId);
+    
+            // Find the certificate
+            const certificate = user.certifications.find(cert => 
+                new ObjectId(cert.courseId).equals(courseObjectId)
+            );
+    
+            if (!certificate) {
+                return {success:false}
+            }
+    
+            return {certificate, success:true};
+        } catch (error) {
+            console.error('Error fetching certificate:', error);
+            throw new Error('Failed to get certificate');
+        }
+    }
+    
+
+    async addCertification(userId: string, certificationData: { courseId: string, title: string, certificateUrl: string }):Promise<{message:string, certification:ICertification[]}> {
+        try {
+            const { courseId, title, certificateUrl } = certificationData;
+    
+            const user = await this.findById(userId);
+            if (!user) throw new Error('User not found');
+    
+            // Convert courseId to ObjectId
+            const courseObjectId = new ObjectId(courseId);
+    
+            // Check if the user already has a certificate for this course
+            const existingCertificate = user.certifications.find(cert => 
+                new ObjectId(cert.courseId).equals(courseObjectId)
+            );
+    
+            if (existingCertificate) throw new Error('Certificate already exists for this course');
+    
+            // Add new certification
+            user.certifications.push({
+                courseId: courseObjectId,
+                title,
+                certificateUrl,
+                issueDate: new Date()
+            });
+    
+            await user.save();
+            return { message: 'Certification added successfully', certification: user.certifications };
+        } catch (error) {
+            console.error('Error adding certification:', error);
+            throw new Error('Failed to add certification');
+        }
+    }
 
     async getCartItems(userId: string): Promise<CartItem[] | null> {
         try {

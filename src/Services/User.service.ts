@@ -557,19 +557,28 @@ export class UserService implements IUserService{
                     console.log(response, 'this is the resposne')
                     const user = await this.userRepository.findByUserId(data.userId)
 
-                    const now = new Date();
-                    
+                    const courseCertificate = await this.userRepository.getCertificate(data.userId, data.courseId);
+                    if(!courseCertificate.success){
 
-                    const dataForCertificate = {
-                        studentName: `${user?.firstName} ${user?.lastName}`,
-                        courseName: data.courseName,
-                        completionDate: now.toISOString().split('T')[0],
-                        certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
-                        instructorName: data.tutorName,
+                        const now = new Date();
+                        const dataForCertificate = {
+                            studentName: `${user?.firstName} ${user?.lastName}`,
+                            courseName: data.courseName,
+                            completionDate: now.toISOString().split('T')[0],
+                            certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+                            instructorName: data.tutorName,
+                        }
+                        
+                        const certificate = await this.certificateGenerator.generateCertificate(dataForCertificate)
+                        const certificateUrl = await uploadPDF(certificate,`${data.courseName}${data.userId}`)
+                        const certificationData = {
+                            courseId:data.courseId,
+                            title:data.courseName ,
+                            certificateUrl: certificateUrl.publicUrl
+                        }
+                        console.log(certificationData,'certification data');
+                        await this.userRepository.addCertification(data.userId, certificationData)
                     }
-                    const certificate = await this.certificateGenerator.generateCertificate(dataForCertificate)
-                    const certificateUrl = await uploadPDF(certificate,`${data.courseName}${data.userId}`)
-                    console.log(certificateUrl,'//////////////////////////////////////////////////')
                 }
                 return {data : response}
             }else{

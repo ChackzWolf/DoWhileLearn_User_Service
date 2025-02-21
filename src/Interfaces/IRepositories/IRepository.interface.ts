@@ -10,6 +10,7 @@ import {
         } from '../DTOs/IRepository.dto';
 import { ObjectId } from 'mongodb';
 import { ICurrentLesson, IPurchasedCourse } from '../Models/IPurchasedCourse';
+import { ICertification } from '../Models/ICertification';
 
 export interface IUserRepository {
   updateUser( dataToUpdate: Partial<IUser>):Promise<IUser>;
@@ -35,4 +36,6 @@ export interface IUserRepository {
   updateProfilePicById(userId:string,profilePic:string):Promise<IUser>
   updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>
   updateCompletedLesson(data: {userId:string, courseId:string, lessonIndex:number, moduleIndex: number, totalLessons:number}):Promise<IPurchasedCourse>
+  getCertificate(userId: string, courseId: string):Promise<{certificate?:ICertification, success:boolean}>
+  addCertification(userId: string, certificationData: { courseId: string, title: string, certificateUrl: string }):Promise<{message:string, certification:ICertification[]}>
 }
