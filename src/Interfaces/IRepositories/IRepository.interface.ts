@@ -34,4 +34,5 @@ export interface IUserRepository {
   getUsersByIds(studentIds: string[]): Promise<IUser[]>
   updateProfilePicById(userId:string,profilePic:string):Promise<IUser>
   updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>
+  updateCompletedLesson(data: {userId:string, courseId:string, lessonIndex:number, moduleIndex: number, totalLessons:number}):Promise<IPurchasedCourse>
 }

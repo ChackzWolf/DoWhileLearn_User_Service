@@ -539,7 +539,21 @@ export class UserService implements IUserService{
             return currentLesson
         } catch (error) {
             console.error(error);
-            throw new Error('Error updating update current lesson ')
+            throw new Error('Error updating update completed lesson ')
+        }
+    }
+
+    async updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number}):Promise<{data:IPurchasedCourse}>{
+        try {
+            const response =  await this.userRepository.updateCompletedLesson(data);
+            if(response){
+                return {data : response}
+            }else{
+                throw new Error('Error updating update completed lesson ')
+            }
+        } catch (error) {
+            console.error(error);
+            throw new Error('Error updating update completed lesson ')
         }
     }
     

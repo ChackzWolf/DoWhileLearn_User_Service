@@ -335,8 +335,43 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             await user.save();
             const currentLesson = purchasedCourse.currentLesson
             return currentLesson
+        } catch (error) {
+            console.log(error)
+            throw new Error("error updating current lesson")
+        }
+    }
+
+    async updateCompletedLesson(data: {userId:string, courseId:string, lessonIndex:number, moduleIndex: number, totalLessons:number}):Promise<IPurchasedCourse>{
+        try {
+            const {userId, courseId, lessonIndex, moduleIndex, totalLessons} = data;
+            const user = await this.findById(userId);
+            if (!user) throw new Error('User not found');
+            const purchasedCourse = user.purchasedCourses.find(course => course.courseId.equals(new ObjectId(courseId)));
+            if (!purchasedCourse) throw new Error('Course not found in purchasedCourses');
+            const isLessonCompleted = purchasedCourse.completedLessons.some(lesson =>
+                lesson.module === moduleIndex && lesson.lesson === lessonIndex
+            );
+            if (!isLessonCompleted) {
+                // Push new completed lesson
+                purchasedCourse.completedLessons.push({
+                    module: moduleIndex,
+                    lesson: lessonIndex,
+                    noTest:false,
+                    testCompleted: false, 
+                });
+                
+                purchasedCourse.completed = purchasedCourse.completedLessons.length >= totalLessons
+                // Save the user document
+                await user.save();
+                console.log(`Lesson ${lessonIndex} in module ${moduleIndex} marked as completed.`);
+                return purchasedCourse
+            } else {
+                console.log(`Lesson ${lessonIndex} in module ${moduleIndex} is already marked as completed.`);
+                return purchasedCourse
+            }
 
         } catch (error) {
+            console.log(error)
             throw new Error("error updating current lesson")
         }
     }

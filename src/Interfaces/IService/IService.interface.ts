@@ -35,4 +35,6 @@ export interface IUserService {
   checkCourseStatus(data:{userId:string,courseId:string}):Promise<{ inCart: boolean, inPurchase:boolean ,inWishlist:boolean, purchasedCourseStatus:IPurchasedCourse | null}>
 
   updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>
+
+  updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number}):Promise<{data:IPurchasedCourse}>
 }

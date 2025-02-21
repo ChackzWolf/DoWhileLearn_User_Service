@@ -156,6 +156,14 @@ export interface UpdateCurrentCourseDTO {
     lessonIndex: number;
 }
 
+export interface UpdateCompletedLessonDTO {
+    userId: string;
+    courseId: string;
+    moduleIndex: number;
+    lessonIndex: number;
+    totalLessons: number;
+}
+
 // Get Cart Items Response DTO
 export interface GetCartItemsResponse {
     courseIds?: CartItem[];

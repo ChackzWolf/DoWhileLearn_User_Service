@@ -26,6 +26,19 @@ service UserService {
     rpc GoogleAuthentication(GoogleAuthenticationRequest) returns(GoogleAuthenticationResponse);
     rpc Test(emptyRequest) returns (TestResponse);
     rpc UpdateCurrentLesson (UpdateCurrentLessonRequest) returns (ICurrentLesson);
+    rpc UpdateCompletedLesson(UpdateCompletedLessonRequest) returns (UpdateCompletedLessonResponse);
+}
+
+message UpdateCompletedLessonRequest {
+    string userId = 1;
+    string courseId = 2;
+    int32 moduleIndex = 3;
+    int32 lessonIndex = 4;
+    int32 totalLessons = 5;
+}
+
+message UpdateCompletedLessonResponse {
+    PurchasedCourseStatus data = 1;
 }
 
 message UpdateCurrentLessonRequest {
