@@ -550,8 +550,11 @@ export class UserService implements IUserService{
     async updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number, courseName:string, tutorName:string}):Promise<{data:IPurchasedCourse}>{
         try {
             const response =  await this.userRepository.updateCompletedLesson(data);
+            console.log(response, 'this is the resposne')
+
             if(response){
                 if(response.completed){
+                    console.log(response, 'this is the resposne')
                     const user = await this.userRepository.findByUserId(data.userId)
 
                     const now = new Date();
