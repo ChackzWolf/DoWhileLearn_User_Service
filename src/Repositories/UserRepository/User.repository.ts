@@ -351,6 +351,8 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             const isLessonCompleted = purchasedCourse.completedLessons.some(lesson =>
                 lesson.module === moduleIndex+1 && lesson.lesson === lessonIndex+1
             );
+            const progress = Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100) > 100 ? 100 : Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100)
+            purchasedCourse.progress = progress
             if (!isLessonCompleted) {
                 // Push new completed lesson
                 purchasedCourse.completedLessons.push({
@@ -362,6 +364,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 
                 purchasedCourse.completed = purchasedCourse.completedLessons.length >= totalLessons
                 // Save the user document
+
                 await user.save();
                 console.log(`Lesson ${lessonIndex} in module ${moduleIndex} marked as completed.`);
                 return purchasedCourse
