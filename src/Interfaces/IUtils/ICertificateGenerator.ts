@@ -1,5 +1,3 @@
-import { Readable } from 'stream';
-import PDFKit from 'pdfkit';
 
 interface ICertificateData {
     studentName: string;
