@@ -561,7 +561,7 @@ export class UserService implements IUserService{
                     const courseCertificate = await this.userRepository.getCertificate(data.userId, data.courseId);
                     console.log(courseCertificate,'courseCertificate');
                     if(!courseCertificate.success){
-
+                         console.log('certificate not found ',  courseCertificate );
                         const now = new Date();
                         const dataForCertificate = {
                             studentName: `${user?.firstName} ${user?.lastName}`,
