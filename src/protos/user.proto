@@ -43,7 +43,7 @@ message GetCertificateResponse {
 
 message Certificate {
     string courseId = 1;
-    string tile = 2;
+    string title = 2;
     string issueDate = 3;
     string certificateUrl = 4;
 }

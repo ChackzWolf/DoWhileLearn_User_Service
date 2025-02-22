@@ -353,7 +353,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 lesson.module === moduleIndex+1 && lesson.lesson === lessonIndex+1
             );
             const progress = Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100) 
-
+            console.log(progress,' progress.///.....././/.//////////////////////////////////////////////////////////////////////////')
             purchasedCourse.progress = progress
 
             if (!isLessonCompleted) {
