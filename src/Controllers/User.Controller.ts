@@ -24,7 +24,9 @@ import {
     GoogleAuthenticationRequestDTO,
     GoogleAuthenticationResponse,
     UpdateCurrentCourseDTO,
-    UpdateCompletedLessonDTO
+    UpdateCompletedLessonDTO,
+    FetchUserCerticateDTO,
+    FetchUserCerticateResponse
 } from "../Interfaces/DTOs/IController.dto";
 
 export interface OrderEventData {
@@ -380,6 +382,16 @@ export class UserController implements IUserController {
         try {
             const data = call.request;
             const response = await this.userService.updateCompletedLesson(data);
+            callback(null, response)
+        } catch (error) {
+            callback(error as grpc.ServiceError);
+        }
+    }
+
+    async fetchUserCertificate(call:grpc.ServerUnaryCall<FetchUserCerticateDTO, FetchUserCerticateResponse>, callback:grpc.sendUnaryData<FetchUserCerticateResponse>):Promise<void>{
+        try {
+            const data = call.request;
+            const response = await this.userService.getCertificate(data);
             callback(null, response)
         } catch (error) {
             callback(error as grpc.ServiceError);

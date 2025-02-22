@@ -1,6 +1,7 @@
 // IController.dto.ts
 import { Types } from 'mongoose';
 import { IUser } from '../Models/IUser';
+import { ICertification } from '../Models/ICertification';
 // User Registration DTO
 export interface UserRegisterDTO {
     email: string;
@@ -166,6 +167,15 @@ export interface UpdateCompletedLessonDTO {
     tutorName:string;
 }
 
+export interface FetchUserCerticateDTO {
+    userId:string;
+    courseId:string;
+}
+
+export interface FetchUserCerticateResponse {
+    success: boolean;
+    certificate?: ICertification
+}
 // Get Cart Items Response DTO
 export interface GetCartItemsResponse {
     courseIds?: CartItem[];

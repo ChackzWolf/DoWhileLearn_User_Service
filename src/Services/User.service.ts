@@ -26,6 +26,7 @@ import { IOTPService } from "../Interfaces/IUtils/IOTPService";
 import { ICurrentLesson, IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
 import { ICertificateGenerator } from "../Interfaces/IUtils/ICertificateGenerator";
 import { uploadPDF } from "../Configs/S3.configs";
+import { ICertification } from "../Interfaces/Models/ICertification";
 
 
 dotenv.config();
@@ -588,6 +589,21 @@ export class UserService implements IUserService{
         } catch (error) {
             console.error(error);
             throw new Error('Error updating update completed lesson ')
+        }
+    }
+
+    async getCertificate(data:{userId:string, courseId:string}):Promise<{success:boolean, certificate?:ICertification}>{
+        try {
+            const {userId, courseId} = data;
+            const response = await this.userRepository.getCertificate(userId, courseId);
+            if(response.success){
+                return response
+            }else{
+                throw new Error('Response from repository says failed to fetch certificate.')
+            }
+        } catch (error) {
+            console.log('failed in service to fetch certificate ', error);
+            throw new Error( ' Failed to fetch certificate from  service');
         }
     }
     

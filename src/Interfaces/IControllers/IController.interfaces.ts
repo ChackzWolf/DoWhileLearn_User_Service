@@ -23,7 +23,9 @@ import {
   GoogleAuthenticationRequestDTO,
   GoogleAuthenticationResponse,
   UpdateCurrentCourseDTO,
-  UpdateCompletedLessonDTO
+  UpdateCompletedLessonDTO,
+  FetchUserCerticateDTO,
+  FetchUserCerticateResponse
 } from "../DTOs/IController.dto";
 import { KafkaMessage } from "kafkajs";
 import { ICurrentLesson, IPurchasedCourse } from '../Models/IPurchasedCourse';
@@ -60,5 +62,6 @@ export interface IUserController {
 
   updateCompletedLesson(call:grpc.ServerUnaryCall<UpdateCompletedLessonDTO, {data:IPurchasedCourse}>, callback:grpc.sendUnaryData<{data:IPurchasedCourse}>):Promise<void>
 
+  fetchUserCertificate(call:grpc.ServerUnaryCall<FetchUserCerticateDTO, FetchUserCerticateResponse>, callback:grpc.sendUnaryData<FetchUserCerticateResponse>):Promise<void>
 
 }

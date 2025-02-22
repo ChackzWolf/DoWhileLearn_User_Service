@@ -15,6 +15,7 @@ import {
   GoogleAuthenticationRequestDTO,
   GoogleAuthenticationResponse
 } from '../DTOs/IService.dto';
+import { ICertification } from '../Models/ICertification';
 import { ICurrentLesson, IPurchasedCourse } from '../Models/IPurchasedCourse';
 
 export interface IUserService {
@@ -37,4 +38,6 @@ export interface IUserService {
   updateCurrentLesson(data: {userId:string, courseId:string, lessonIndex: number, moduleIndex: number}):Promise<ICurrentLesson>
 
   updateCompletedLesson(data: {userId: string ,courseId :string, lessonIndex: number, moduleIndex: number, totalLessons:number}):Promise<{data:IPurchasedCourse}>
+
+  getCertificate(data:{userId:string, courseId:string}):Promise<{success:boolean, certificate?:ICertification}>
 }

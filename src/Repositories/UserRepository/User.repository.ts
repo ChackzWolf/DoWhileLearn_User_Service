@@ -438,6 +438,8 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
         }
     }
 
+
+
     async getCartItems(userId: string): Promise<CartItem[] | null> {
         try {
             const user = await this.findById(userId);
