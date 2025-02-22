@@ -595,9 +595,7 @@ export class UserService implements IUserService{
     async getCertificate(data:{userId:string, courseId:string}):Promise<{success:boolean, certificate?:ICertification}>{
         try {
             const {userId, courseId} = data;
-            console.log(data, 'data before///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////')
             const response = await this.userRepository.getCertificate(userId, courseId);
-            console.log(response, 'fetching certificat/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////')
             if(response.success){
                 return response
             }else{

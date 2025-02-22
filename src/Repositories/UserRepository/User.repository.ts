@@ -352,10 +352,6 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
             const isLessonCompleted = purchasedCourse.completedLessons.some(lesson =>
                 lesson.module === moduleIndex+1 && lesson.lesson === lessonIndex+1
             );
-            const progress = Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100) 
-            console.log(progress,' progress.///.....././/.//////////////////////////////////////////////////////////////////////////')
-            purchasedCourse.progress = progress
-
             if (!isLessonCompleted) {
                 // Push new completed lesson
                 purchasedCourse.completedLessons.push({
@@ -364,7 +360,8 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                     noTest:false,
                     testCompleted: false, 
                 });
-                
+                const progress = Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100) 
+                purchasedCourse.progress = progress
                 purchasedCourse.completed = purchasedCourse.completedLessons.length >= totalLessons
                 if(purchasedCourse.completed) purchasedCourse.progress = 100;
 
@@ -372,6 +369,8 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 console.log(`Lesson ${lessonIndex} in module ${moduleIndex} marked as completed.`);
                 return purchasedCourse
             } else {
+                const progress = Math.round((purchasedCourse.completedLessons.length / totalLessons) * 100) 
+                purchasedCourse.progress = progress
                 if(purchasedCourse.completed) purchasedCourse.progress = 100;
                 await user.save();
                 console.log(`Lesson ${lessonIndex} in module ${moduleIndex} is already marked as completed.`);
