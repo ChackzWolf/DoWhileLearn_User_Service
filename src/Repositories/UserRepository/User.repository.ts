@@ -367,11 +367,13 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                 
                 purchasedCourse.completed = purchasedCourse.completedLessons.length >= totalLessons
                 if(purchasedCourse.completed) purchasedCourse.progress = 100;
-                
+
                 await user.save();
                 console.log(`Lesson ${lessonIndex} in module ${moduleIndex} marked as completed.`);
                 return purchasedCourse
             } else {
+                if(purchasedCourse.completed) purchasedCourse.progress = 100;
+                await user.save();
                 console.log(`Lesson ${lessonIndex} in module ${moduleIndex} is already marked as completed.`);
                 return purchasedCourse
             }
@@ -386,18 +388,14 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
         try {
             const user = await this.findById(userId);
             if (!user) throw new Error('User not found');
-
             const courseObjectId = new ObjectId(courseId);
-    
             // Find the certificate
             const certificate = user.certifications.find(cert => 
                 new ObjectId(cert.courseId).equals(courseObjectId)
             );
-    
             if (!certificate) {
                 return {success:false}
             }
-    
             return {certificate, success:true};
         } catch (error) {
             console.error('Error fetching certificate:', error);
