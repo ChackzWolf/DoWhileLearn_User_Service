@@ -101,6 +101,7 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
                         phoneNumber: dataToUpdate.phoneNumber,
                         bio: dataToUpdate.bio,
                         profilePicture: dataToUpdate.profilePicture,
+                        socialLinks: dataToUpdate.socialLinks,
                     },
                 },
                 { new: true, runValidators: true } // Returns updated document & applies schema validations
