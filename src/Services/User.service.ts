@@ -599,7 +599,7 @@ export class UserService implements IUserService{
             if(response.success){
                 return response
             }else{
-                throw new Error('Response from repository says failed to fetch certificate.')
+                return response
             }
         } catch (error) {
             console.log('failed in service to fetch certificate ', error);
