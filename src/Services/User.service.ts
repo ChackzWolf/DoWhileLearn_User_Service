@@ -517,7 +517,7 @@ export class UserService implements IUserService{
                 data.messages.map(async (msg:any) => {
                     const userId = msg.userId;
                     const name = await this.userRepository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
-                    return { ...msg, name };
+                    return { ...msg, name:name.name, imageUrl: name.imageUrl };
                 })
             );
             return updatedData;

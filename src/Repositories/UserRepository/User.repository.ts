@@ -526,20 +526,21 @@ class UserRepository extends BaseRepository<IUser> implements IUserRepository {
         return otpEntry !== null;
     }
 
-    async getNameById(userId: string): Promise<string> {
+    async getNameById(userId: string): Promise<{name:string| null, imageUrl:string | null}> {
         try {
             const user = await this.findById(userId);
             if (!user) {
                 console.log(`User not found with ID: ${userId}`);
-                return "Unknown User";
+                return {imageUrl:null, name:null};
             }
 
             const name = `${user.firstName} ${user.lastName}`;
+            const imageUrl = user.profilePicture
             console.log(name, 'retrieved user name');
-            return name;
+            return {name,imageUrl};
         } catch (error) {
             console.error('Error fetching user by ID:', error);
-            return "Unknown User";
+            return {imageUrl:null, name:null};
         }
     }
 
