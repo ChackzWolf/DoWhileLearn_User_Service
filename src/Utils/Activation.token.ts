@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import jwt ,{ Secret }from "jsonwebtoken";
 import { IUser } from "../Interfaces/Models/IUser";
 import { configs } from "../Configs/ENV_configs/ENV.configs";
-import e from "express";
 import { IJWT } from "../Interfaces/IUtils/IJWT";
 dotenv.config()
 
