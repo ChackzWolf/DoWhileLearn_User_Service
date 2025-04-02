@@ -15,6 +15,7 @@ import { EmailService } from "./Utils/Send.email";
 import { OTPService } from "./Utils/Generate.OTP";
 import { UserService } from "./Services/User.service";
 import { CertificateGenerator } from "./Utils/GenerateCertificate";
+import { JWT } from "./Utils/Activation.token";
 const app = express();
 
 
@@ -58,11 +59,13 @@ const packatgeDefinition = protoLoader.loadSync(
 const userProto = grpc.loadPackageDefinition(packatgeDefinition)as any;
 
 const server =  new grpc.Server()
+
 const certificateGenerator = new CertificateGenerator()
 const userRepository = new UserRepository(); 
-const emailService = new EmailService();
+const emailService = new EmailService(); 
 const otpService = new OTPService();
-const userService = new UserService(userRepository, emailService, otpService, certificateGenerator);
+const jwt = new JWT()
+const userService = new UserService(userRepository, emailService, otpService, certificateGenerator, jwt);
 const userController = new UserController(userService);
 
 const grpcServer = () => {
@@ -82,7 +85,6 @@ const grpcServer = () => {
  
 
 server.addService(userProto.UserService.service, {
-
     Register: userController.signup.bind(userController),
     VerifyOTP: userController.verifyOtp.bind(userController),
     ResendOTP: userController.resendOtp.bind(userController),
@@ -112,8 +114,6 @@ server.addService(userProto.UserService.service, {
 
 grpcServer()
 
-
-// Start Kafka consumer
 userController.start()
   .catch(error => console.error('Failed to start kafka course service:', error));
 
@@ -121,8 +121,3 @@ const PORT = configs.PORT;
 app.listen(PORT, () => {
   console.log(`Course service running on port ${PORT}`);
 });
- 
-
-
-
-

@@ -2,7 +2,6 @@ import  { TempUser } from "../Schemas/User.schema";
 import { IUser, ITempUser, CartItem } from "../Interfaces/Models/IUser";
 import dotenv from "dotenv"
 import { IUserService } from "../Interfaces/IService/IService.interface";
-import createToken from "../Utils/Activation.token";
 import { StatusCode } from "../Interfaces/Enums/Enums";
 import { 
     UserRegisterDTO, 
@@ -27,6 +26,7 @@ import { ICurrentLesson, IPurchasedCourse } from "../Interfaces/Models/IPurchase
 import { ICertificateGenerator } from "../Interfaces/IUtils/ICertificateGenerator";
 import { uploadPDF } from "../Configs/S3.configs";
 import { ICertification } from "../Interfaces/Models/ICertification";
+import { IJWT } from "../Interfaces/IUtils/IJWT";
 
 
 dotenv.config();
@@ -55,12 +55,14 @@ export class UserService implements IUserService{
     private emailService: IEmailService;
     private otpService: IOTPService;
     private certificateGenerator: ICertificateGenerator
+    private jwt: IJWT
 
-    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService, certificateGenerator:ICertificateGenerator) {
+    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService, certificateGenerator:ICertificateGenerator, jwt: IJWT) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.otpService = otpService;
         this.certificateGenerator = certificateGenerator;
+        this.jwt = jwt;
     }
     
     
@@ -114,7 +116,7 @@ export class UserService implements IUserService{
                 if(isBlocked){
                     return {success: false, message : 'isBlocked'}
                 }
-                const {accessToken , refreshToken} = createToken(userData);
+                const {accessToken , refreshToken} = this.jwt.createToken(userData);
 
 
                 console.log('afaf',userData.profilePicture)
@@ -150,7 +152,7 @@ export class UserService implements IUserService{
                 }
                 const userId: string = createdUser._id.toString();
                 console.log(createdUser, 'created user')
-                const { accessToken, refreshToken } = createToken(createdUser);
+                const { accessToken, refreshToken } = this.jwt.createToken(createdUser);
                 return { 
                     success: true, 
                     message: "User has been registered successfully.", 
@@ -185,7 +187,7 @@ export class UserService implements IUserService{
             }
             const userId: string = createdUser._id.toString();
 
-            const { accessToken, refreshToken } = createToken(createdUser);
+            const { accessToken, refreshToken } = this.jwt.createToken(createdUser);
     
             return { 
                 success: true, 
@@ -239,7 +241,7 @@ export class UserService implements IUserService{
                     if(isBlocked){
                         return {success: false, message : 'isBlocked'}
                     }
-                    const {accessToken , refreshToken} = createToken(userData);
+                    const {accessToken , refreshToken} = this.jwt.createToken(userData);
                     
                     return {success:true, message: "User login successful.", userData, accessToken, refreshToken, userId};
                 }else {

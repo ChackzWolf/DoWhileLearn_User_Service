@@ -26,4 +26,27 @@ export class EmailService implements IEmailService {
             throw new Error(`Failed to send verification email: ${error}`);
         }
     }
+
+    async sendInfo(subject:string, message:string): Promise<void> {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: configs.DWL_EMAIL,
+                    pass: configs.EMAIL_PASSWORD
+                },
+            });
+
+            const mailOptions = {
+                from: 'DoWhileLearn <dowhilelearn@gmail.com>',
+                to: 'jacksoncheriyan05@gmail.com',
+                subject: subject,
+                html: `<p>${message}</p>`
+            };
+
+            await transporter.sendMail(mailOptions);
+        } catch (error) {
+            throw new Error(`Failed to send verification email: ${error}`);
+        }
+    }
 }
