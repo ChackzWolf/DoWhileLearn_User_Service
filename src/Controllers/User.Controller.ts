@@ -330,7 +330,7 @@ export class UserController implements IUserController {
             console.log('trig review fetch', call.request);
             const data = call.request;
             const response = await this.userService.attachReviewById(data);
-            console.log(response, 'this is the response');
+            console.log(response, 'this is the response from attatch review by id');
             const reviewData =response;
             callback(null, {reviewData});
         } catch (error) {  

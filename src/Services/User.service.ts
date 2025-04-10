@@ -486,6 +486,7 @@ export class UserService implements IUserService{
                 data.reviewData.map(async (review:any) => {
                     const userId = review.userId;
                     const name = await this.userRepository.getNameById(userId); // getNameById returns either the user's full name or "Unknown User" if not found
+                    console.log(name, 'name to review. from user service')
                     return { ...review, name };
                 })
             );
