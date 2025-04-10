@@ -321,8 +321,8 @@ export class UserController implements IUserController {
             callback(null, response);
         } catch (error) {
             callback(error as grpc.ServiceError);
-        } 
-    }
+        }  
+    } 
 
     async linkNameToReview(call:grpc.ServerUnaryCall<any,any>, callback: grpc.sendUnaryData<any>): Promise<void> {
         console.log("vann")
@@ -331,7 +331,7 @@ export class UserController implements IUserController {
             const data = call.request;
             const response = await this.userService.attachReviewById(data);
             console.log(response, 'this is the response from attatch review by id');
-            const reviewData =response;
+            const reviewData = response;
             callback(null, {reviewData});
         } catch (error) {  
             callback(error as grpc.ServiceError);
