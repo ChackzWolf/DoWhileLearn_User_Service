@@ -82,7 +82,7 @@ export class UserService implements IUserService{
 
             let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            await this.emailService.sendVerificationMail(email,otp)
+            this.emailService.sendVerificationMail(email,otp)
 
             console.log('Email send')
 
@@ -219,7 +219,7 @@ export class UserService implements IUserService{
                 console.log('failed to send otp')
                 return { success: false, message: "Register time has expaired. Try registering again"}
             }else{
-                await this.emailService.sendVerificationMail(email,newOTP)
+                this.emailService.sendVerificationMail(email,newOTP)
 
                 return {success: true, message:"OTP has been resent"};
             } 
@@ -430,7 +430,7 @@ export class UserService implements IUserService{
             }
             let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            await this.emailService.sendVerificationMail(email,otp)
+            this.emailService.sendVerificationMail(email,otp)
             console.log('1')
             const otpId = await this.userRepository.storeOTP(email,otp);
             console.log('2')
@@ -448,7 +448,7 @@ export class UserService implements IUserService{
             console.log(`OTP : [ ${otp} ]`);
 
 
-            await this.emailService.sendVerificationMail(email,otp) 
+            this.emailService.sendVerificationMail(email,otp) 
 
 
             const updateStoredOTP = await this.userRepository.updateStoredOTP(otpId,otp);

@@ -21,7 +21,7 @@ export class EmailService implements IEmailService {
                 html: `<p>Hello alien. Please enter the code: ${otp} to verify your email address and start your journey with DoWhileLearn</p>`
             };
 
-            await transporter.sendMail(mailOptions);
+            transporter.sendMail(mailOptions);
         } catch (error) {
             throw new Error(`Failed to send verification email: ${error}`);
         }
