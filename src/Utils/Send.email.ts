@@ -7,7 +7,7 @@ import { Resend } from 'resend';
 export class EmailService implements IEmailService {
     async sendVerificationMail(email: string, otp: string): Promise<void> {
         try {
-            const resend = new Resend(process.env.RESEND_API_KEY);
+            const resend = new Resend(process.env.EMAIL_PASSWORD);
 
             await resend.emails.send({
                 from: 'DoWhileLearn <onboarding@resend.dev>',
@@ -18,7 +18,6 @@ export class EmailService implements IEmailService {
         } catch (error) {
             console.log(error)
         }
-
     }
 
     async sendInfo(subject: string, message: string): Promise<void> {
