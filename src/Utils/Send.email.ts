@@ -7,27 +7,29 @@ export class EmailService implements IEmailService {
     async sendVerificationMail(email: string, otp: string): Promise<void> {
         try {
             const transporter = nodemailer.createTransport({
-                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false, // true for port 465
                 auth: {
                     user: configs.DWL_EMAIL,
-                    pass: configs.EMAIL_PASSWORD
+                    pass: configs.EMAIL_PASSWORD,
                 },
             });
 
             const mailOptions = {
-                from: 'DoWhileLearn <dowhilelearn@gmail.com>',
+                from: 'DoWhileLearn <dowhilelearn05@gmail.com>',
                 to: email,
                 subject: 'E-Mail Verification',
                 html: `<p>Hello alien. Please enter the code: ${otp} to verify your email address and start your journey with DoWhileLearn</p>`
             };
 
-            transporter.sendMail(mailOptions);
+            await transporter.sendMail(mailOptions);
         } catch (error) {
             throw new Error(`Failed to send verification email: ${error}`);
         }
     }
 
-    async sendInfo(subject:string, message:string): Promise<void> {
+    async sendInfo(subject: string, message: string): Promise<void> {
         try {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
