@@ -6,6 +6,8 @@ import { IEmailService } from "../Interfaces/IUtils/IEmailService";
 export class EmailService implements IEmailService {
     async sendVerificationMail(email: string, otp: string): Promise<void> {
         try {
+            console.log(configs.DWL_EMAIL,
+configs.EMAIL_PASSWORD, 'credentials')
             const transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
                 port: 587,
