@@ -7,11 +7,11 @@ export class EmailService implements IEmailService {
     async sendVerificationMail(email: string, otp: string): Promise<void> {
         try {
             console.log(configs.DWL_EMAIL,
-configs.EMAIL_PASSWORD, 'credentials')
+                configs.EMAIL_PASSWORD, 'credentials')
             const transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
-                port: 587,
-                secure: false, // true for port 465
+                port: 465,
+                secure: true,
                 auth: {
                     user: configs.DWL_EMAIL,
                     pass: configs.EMAIL_PASSWORD,

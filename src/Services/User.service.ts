@@ -82,7 +82,7 @@ export class UserService implements IUserService{
 
             let otp = this.otpService.generateOTP();
             console.log(`OTP : [ ${otp} ]`);
-            this.emailService.sendVerificationMail(email,otp)
+            await this.emailService.sendVerificationMail(email,otp)
 
             console.log('Email send')
 
