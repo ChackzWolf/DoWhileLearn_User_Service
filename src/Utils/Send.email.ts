@@ -5,20 +5,26 @@ import { Resend } from 'resend';
 
 
 export class EmailService implements IEmailService {
-    async sendVerificationMail(email: string, otp: string): Promise<void> {
-        try {
-            const resend = new Resend(process.env.EMAIL_PASSWORD);
+async sendVerificationMail(email: string, otp: string): Promise<void> {
+    try {
+        console.log('🔄 Starting Resend email for:', email);
+        
+        const resend = new Resend(process.env.EMAIL_PASSWORD);
 
-            await resend.emails.send({
-                from: 'DoWhileLearn <onboarding@resend.dev>',
-                to: email,
-                subject: 'Email Verification',
-                html: `<p>Code: ${otp}</p>`
-            });
-        } catch (error) {
-            console.log(error)
-        }
+        const result = await resend.emails.send({
+            from: 'DoWhileLearn <onboarding@resend.dev>',
+            to: email,
+            subject: 'Email Verification',
+            html: `<p>Code: ${otp}</p>`
+        });
+        
+        console.log('✅ Resend response:', result);
+        console.log('📤 Check spam folder for:', email);
+        
+    } catch (error) {
+        console.log('❌ Resend error:', error);
     }
+}
 
     async sendInfo(subject: string, message: string): Promise<void> {
         try {
