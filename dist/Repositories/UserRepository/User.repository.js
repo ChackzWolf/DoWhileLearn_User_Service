@@ -221,6 +221,7 @@ var UserRepository = /** @class */ (function (_super) {
                                     phoneNumber: dataToUpdate.phoneNumber,
                                     bio: dataToUpdate.bio,
                                     profilePicture: dataToUpdate.profilePicture,
+                                    socialLinks: dataToUpdate.socialLinks,
                                 },
                             }, { new: true, runValidators: true } // Returns updated document & applies schema validations
                             )];
@@ -803,7 +804,7 @@ var UserRepository = /** @class */ (function (_super) {
     };
     UserRepository.prototype.getNameById = function (userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, name, error_20;
+            var user, name, imageUrl, error_20;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -813,15 +814,16 @@ var UserRepository = /** @class */ (function (_super) {
                         user = _a.sent();
                         if (!user) {
                             console.log("User not found with ID: ".concat(userId));
-                            return [2 /*return*/, "Unknown User"];
+                            return [2 /*return*/, { imageUrl: null, name: null }];
                         }
                         name = "".concat(user.firstName, " ").concat(user.lastName);
+                        imageUrl = user.profilePicture;
                         console.log(name, 'retrieved user name');
-                        return [2 /*return*/, name];
+                        return [2 /*return*/, { name: name, imageUrl: imageUrl }];
                     case 2:
                         error_20 = _a.sent();
                         console.error('Error fetching user by ID:', error_20);
-                        return [2 /*return*/, "Unknown User"];
+                        return [2 /*return*/, { imageUrl: null, name: null }];
                     case 3: return [2 /*return*/];
                 }
             });

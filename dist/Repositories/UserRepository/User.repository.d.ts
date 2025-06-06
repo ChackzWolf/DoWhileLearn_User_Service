@@ -63,6 +63,9 @@ declare class UserRepository extends BaseRepository<IUser> implements IUserRepos
     storeOTP(email: string, otp: string): Promise<ObjectId>;
     updateStoredOTP(otpId: string, otp: string): Promise<OTPInterface>;
     verifyOTP(email: string, otp: string): Promise<boolean>;
-    getNameById(userId: string): Promise<string>;
+    getNameById(userId: string): Promise<{
+        name: string | null;
+        imageUrl: string | null;
+    }>;
 }
 export default UserRepository;

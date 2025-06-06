@@ -53,6 +53,7 @@ var Send_email_1 = require("./Utils/Send.email");
 var Generate_OTP_1 = require("./Utils/Generate.OTP");
 var User_service_1 = require("./Services/User.service");
 var GenerateCertificate_1 = require("./Utils/GenerateCertificate");
+var Activation_token_1 = require("./Utils/Activation.token");
 var app = (0, express_1.default)();
 // error log
 var logger = winston_1.default.createLogger({
@@ -84,7 +85,8 @@ var certificateGenerator = new GenerateCertificate_1.CertificateGenerator();
 var userRepository = new User_repository_1.default();
 var emailService = new Send_email_1.EmailService();
 var otpService = new Generate_OTP_1.OTPService();
-var userService = new User_service_1.UserService(userRepository, emailService, otpService, certificateGenerator);
+var jwt = new Activation_token_1.JWT();
+var userService = new User_service_1.UserService(userRepository, emailService, otpService, certificateGenerator, jwt);
 var userController = new User_Controller_1.UserController(userService);
 var grpcServer = function () {
     server.bindAsync("0.0.0.0:".concat(ENV_configs_1.configs.USER_GRPC_PORT), grpc.ServerCredentials.createInsecure(), function (err, port) {
@@ -125,7 +127,6 @@ server.addService(userProto.UserService.service, {
     Test: userController.test.bind(userController),
 });
 grpcServer();
-// Start Kafka consumer
 userController.start()
     .catch(function (error) { return console.error('Failed to start kafka course service:', error); });
 var PORT = ENV_configs_1.configs.PORT;

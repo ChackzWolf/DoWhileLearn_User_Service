@@ -8,6 +8,7 @@ import { IOTPService } from "../Interfaces/IUtils/IOTPService";
 import { ICurrentLesson, IPurchasedCourse } from "../Interfaces/Models/IPurchasedCourse";
 import { ICertificateGenerator } from "../Interfaces/IUtils/ICertificateGenerator";
 import { ICertification } from "../Interfaces/Models/ICertification";
+import { IJWT } from "../Interfaces/IUtils/IJWT";
 export interface OrderEventData {
     userId: string;
     tutorId: string;
@@ -27,7 +28,8 @@ export declare class UserService implements IUserService {
     private emailService;
     private otpService;
     private certificateGenerator;
-    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService, certificateGenerator: ICertificateGenerator);
+    private jwt;
+    constructor(userRepository: IUserRepository, emailService: IEmailService, otpService: IOTPService, certificateGenerator: ICertificateGenerator, jwt: IJWT);
     userRegister(userData: UserRegisterDTO): Promise<UserRegisterResponse>;
     googleAuthentication(data: GoogleAuthenticationRequestDTO): Promise<GoogleAuthenticationResponse>;
     VerifyOtp(passedData: VerifyOtpDTO): Promise<VerifyOtpResponse>;

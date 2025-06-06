@@ -33,7 +33,10 @@ export interface IUserRepository {
     removeFromPurchaseList(userId: string, courseId: string): Promise<AddToPurchaseListResponse>;
     updateStoredOTP(otpId: string, otp: string): Promise<OTPInterface>;
     verifyOTP(email: string, otp: string): Promise<boolean>;
-    getNameById(userId: string): Promise<string>;
+    getNameById(userId: string): Promise<{
+        name: string | null;
+        imageUrl: string | null;
+    }>;
     getUsersByIds(studentIds: string[]): Promise<IUser[]>;
     updateProfilePicById(userId: string, profilePic: string): Promise<IUser>;
     updateCurrentLesson(data: {

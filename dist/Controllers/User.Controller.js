@@ -580,7 +580,7 @@ var UserController = /** @class */ (function () {
                         return [4 /*yield*/, this.userService.attachReviewById(data)];
                     case 2:
                         response = _a.sent();
-                        console.log(response, 'this is the response');
+                        console.log(response, 'this is the response from attatch review by id');
                         reviewData = response;
                         callback(null, { reviewData: reviewData });
                         return [3 /*break*/, 4];

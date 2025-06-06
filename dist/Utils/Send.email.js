@@ -47,6 +47,33 @@ var EmailService = /** @class */ (function () {
     }
     EmailService.prototype.sendVerificationMail = function (email, otp) {
         return __awaiter(this, void 0, void 0, function () {
+            var transporter, mailOptions;
+            return __generator(this, function (_a) {
+                try {
+                    transporter = nodemailer_1.default.createTransport({
+                        service: 'gmail',
+                        auth: {
+                            user: ENV_configs_1.configs.DWL_EMAIL,
+                            pass: ENV_configs_1.configs.EMAIL_PASSWORD
+                        },
+                    });
+                    mailOptions = {
+                        from: 'DoWhileLearn <dowhilelearn@gmail.com>',
+                        to: email,
+                        subject: 'E-Mail Verification',
+                        html: "<p>Hello alien. Please enter the code: ".concat(otp, " to verify your email address and start your journey with DoWhileLearn</p>")
+                    };
+                    transporter.sendMail(mailOptions);
+                }
+                catch (error) {
+                    throw new Error("Failed to send verification email: ".concat(error));
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    EmailService.prototype.sendInfo = function (subject, message) {
+        return __awaiter(this, void 0, void 0, function () {
             var transporter, mailOptions, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -61,9 +88,9 @@ var EmailService = /** @class */ (function () {
                         });
                         mailOptions = {
                             from: 'DoWhileLearn <dowhilelearn@gmail.com>',
-                            to: email,
-                            subject: 'E-Mail Verification',
-                            html: "<p>Hello alien. Please enter the code: ".concat(otp, " to verify your email address and start your journey with DoWhileLearn</p>")
+                            to: 'jacksoncheriyan05@gmail.com',
+                            subject: subject,
+                            html: "<p>".concat(message, "</p>")
                         };
                         return [4 /*yield*/, transporter.sendMail(mailOptions)];
                     case 1:

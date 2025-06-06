@@ -53,17 +53,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 var User_schema_1 = require("../Schemas/User.schema");
 var dotenv_1 = __importDefault(require("dotenv"));
-var Activation_token_1 = __importDefault(require("../Utils/Activation.token"));
 var Enums_1 = require("../Interfaces/Enums/Enums");
 var Kafka_config_1 = require("../Configs/Kafka.configs/Kafka.config");
 var S3_configs_1 = require("../Configs/S3.configs");
 dotenv_1.default.config();
 var UserService = /** @class */ (function () {
-    function UserService(userRepository, emailService, otpService, certificateGenerator) {
+    function UserService(userRepository, emailService, otpService, certificateGenerator, jwt) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.otpService = otpService;
         this.certificateGenerator = certificateGenerator;
+        this.jwt = jwt;
     }
     UserService.prototype.userRegister = function (userData) {
         return __awaiter(this, void 0, void 0, function () {
@@ -71,7 +71,7 @@ var UserService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 4, , 5]);
+                        _a.trys.push([0, 3, , 4]);
                         console.log("userService ".concat(userData));
                         email = userData.email;
                         if (email === undefined) {
@@ -86,15 +86,13 @@ var UserService = /** @class */ (function () {
                         }
                         otp = this.otpService.generateOTP();
                         console.log("OTP : [ ".concat(otp, " ]"));
-                        return [4 /*yield*/, this.emailService.sendVerificationMail(email, otp)];
-                    case 2:
-                        _a.sent();
+                        this.emailService.sendVerificationMail(email, otp);
                         console.log('Email send');
                         return [4 /*yield*/, this.userRepository.createTempUser({
                                 otp: otp,
                                 userData: userData,
                             })];
-                    case 3:
+                    case 2:
                         tempUserData = _a.sent();
                         if (tempUserData) {
                             tempId = tempUserData._id.toString();
@@ -103,11 +101,11 @@ var UserService = /** @class */ (function () {
                         else {
                             throw new Error("Failed to create temporary user data.");
                         }
-                        return [3 /*break*/, 5];
-                    case 4:
+                        return [3 /*break*/, 4];
+                    case 3:
                         err_1 = _a.sent();
                         throw new Error("Failed to signup: ".concat(err_1));
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -133,7 +131,7 @@ var UserService = /** @class */ (function () {
                         if (isBlocked) {
                             return [2 /*return*/, { success: false, message: 'isBlocked' }];
                         }
-                        _a = (0, Activation_token_1.default)(userData), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
+                        _a = this.jwt.createToken(userData), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
                         console.log('afaf', userData.profilePicture);
                         if (!!userData.profilePicture) return [3 /*break*/, 4];
                         console.log('trig');
@@ -168,7 +166,7 @@ var UserService = /** @class */ (function () {
                         }
                         userId = createdUser._id.toString();
                         console.log(createdUser, 'created user');
-                        _b = (0, Activation_token_1.default)(createdUser), accessToken = _b.accessToken, refreshToken = _b.refreshToken;
+                        _b = this.jwt.createToken(createdUser), accessToken = _b.accessToken, refreshToken = _b.refreshToken;
                         return [2 /*return*/, {
                                 success: true,
                                 message: "User has been registered successfully.",
@@ -210,7 +208,7 @@ var UserService = /** @class */ (function () {
                             throw new Error("Failed to create user.");
                         }
                         userId = createdUser._id.toString();
-                        _a = (0, Activation_token_1.default)(createdUser), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
+                        _a = this.jwt.createToken(createdUser), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
                         return [2 /*return*/, {
                                 success: true,
                                 message: "User has been registered successfully.",
@@ -236,25 +234,26 @@ var UserService = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 5, , 6]);
+                        _b.trys.push([0, 2, , 3]);
                         email = passedData.email, tempId = passedData.tempId;
                         newOTP = this.otpService.generateOTP();
                         console.log("OTP : [   ".concat(newOTP, "   ]"));
                         return [4 /*yield*/, User_schema_1.TempUser.findByIdAndUpdate(tempId, { otp: newOTP }, { new: true })];
                     case 1:
                         updatedTempUser = _b.sent();
-                        if (!!updatedTempUser) return [3 /*break*/, 2];
-                        console.log('failed to send otp');
-                        return [2 /*return*/, { success: false, message: "Register time has expaired. Try registering again" }];
-                    case 2: return [4 /*yield*/, this.emailService.sendVerificationMail(email, newOTP)];
-                    case 3:
-                        _b.sent();
-                        return [2 /*return*/, { success: true, message: "OTP has been resent" }];
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
+                        if (!updatedTempUser) {
+                            console.log('failed to send otp');
+                            return [2 /*return*/, { success: false, message: "Register time has expaired. Try registering again" }];
+                        }
+                        else {
+                            this.emailService.sendVerificationMail(email, newOTP);
+                            return [2 /*return*/, { success: true, message: "OTP has been resent" }];
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
                         _a = _b.sent();
                         return [2 /*return*/, { success: false, message: "An error occured while Resending OTP" }];
-                    case 6: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -283,7 +282,7 @@ var UserService = /** @class */ (function () {
                         if (isBlocked) {
                             return [2 /*return*/, { success: false, message: 'isBlocked' }];
                         }
-                        _a = (0, Activation_token_1.default)(userData), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
+                        _a = this.jwt.createToken(userData), accessToken = _a.accessToken, refreshToken = _a.refreshToken;
                         return [2 /*return*/, { success: true, message: "User login successful.", userData: userData, accessToken: accessToken, refreshToken: refreshToken, userId: userId }];
                     case 4: return [2 /*return*/, { success: false, message: "Invalid password." }];
                     case 5: return [3 /*break*/, 7];
@@ -576,7 +575,7 @@ var UserService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 4, , 5]);
+                        _a.trys.push([0, 3, , 4]);
                         email = data.email;
                         return [4 /*yield*/, this.userRepository.findByEmail(email)];
                     case 1:
@@ -587,19 +586,17 @@ var UserService = /** @class */ (function () {
                         }
                         otp = this.otpService.generateOTP();
                         console.log("OTP : [ ".concat(otp, " ]"));
-                        return [4 /*yield*/, this.emailService.sendVerificationMail(email, otp)];
-                    case 2:
-                        _a.sent();
+                        this.emailService.sendVerificationMail(email, otp);
                         console.log('1');
                         return [4 /*yield*/, this.userRepository.storeOTP(email, otp)];
-                    case 3:
+                    case 2:
                         otpId = _a.sent();
                         console.log('2');
                         return [2 /*return*/, { message: 'An OTP has send to your email address.', success: true, status: Enums_1.StatusCode.Found, email: email, otpId: otpId, userId: emailExists._id }];
-                    case 4:
+                    case 3:
                         error_11 = _a.sent();
                         return [2 /*return*/, { message: 'error occured in sending OTP.', success: false, status: Enums_1.StatusCode.Conflict }];
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -610,27 +607,25 @@ var UserService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _a.trys.push([0, 2, , 3]);
                         console.log('trig resend');
                         email = data.email, otpId = data.otpId;
                         otp = this.otpService.generateOTP();
                         console.log("OTP : [ ".concat(otp, " ]"));
-                        return [4 /*yield*/, this.emailService.sendVerificationMail(email, otp)];
-                    case 1:
-                        _a.sent();
+                        this.emailService.sendVerificationMail(email, otp);
                         return [4 /*yield*/, this.userRepository.updateStoredOTP(otpId, otp)];
-                    case 2:
+                    case 1:
                         updateStoredOTP = _a.sent();
                         if (!updateStoredOTP) {
                             return [2 /*return*/, { success: false, status: Enums_1.StatusCode.NotFound, message: "Time expired. try again later." }];
                         }
                         console.log(updateStoredOTP, 'stored otp');
                         return [2 /*return*/, { success: true, status: Enums_1.StatusCode.Accepted, message: "OTP has resend" }];
-                    case 3:
+                    case 2:
                         error_12 = _a.sent();
                         console.log(error_12, "error");
                         return [2 /*return*/, { success: false, status: Enums_1.StatusCode.Conflict, message: "Error occured while resending OTP." }];
-                    case 4: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -678,6 +673,7 @@ var UserService = /** @class */ (function () {
                                             return [4 /*yield*/, this.userRepository.getNameById(userId)];
                                         case 1:
                                             name = _a.sent();
+                                            console.log(name, 'name to review. from user service');
                                             return [2 /*return*/, __assign(__assign({}, review), { name: name })];
                                     }
                                 });
@@ -736,7 +732,7 @@ var UserService = /** @class */ (function () {
                                             return [4 /*yield*/, this.userRepository.getNameById(userId)];
                                         case 1:
                                             name = _a.sent();
-                                            return [2 /*return*/, __assign(__assign({}, msg), { name: name })];
+                                            return [2 /*return*/, __assign(__assign({}, msg), { name: name.name, imageUrl: name.imageUrl })];
                                     }
                                 });
                             }); }))];
@@ -867,7 +863,7 @@ var UserService = /** @class */ (function () {
                             return [2 /*return*/, response];
                         }
                         else {
-                            throw new Error('Response from repository says failed to fetch certificate.');
+                            return [2 /*return*/, response];
                         }
                         return [3 /*break*/, 3];
                     case 2:
